@@ -1,0 +1,50 @@
+{
+  "suite": "Calculator Basic Operations",
+  "application": {
+    "path": "calc.exe",
+    "startArgs": "",
+    "windowTitle": "電卓",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "2 + 3 = 5 の計算",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "automationId": "num2Button" },
+          "description": "数字 2 をクリック"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "plusButton" },
+          "description": "+ をクリック"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "num3Button" },
+          "description": "数字 3 をクリック"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "equalButton" },
+          "description": "= をクリック"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CalculatorResults" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "5"
+          },
+          "description": "結果が 5 を含むことを確認"
+        }
+      ]
+    }
+  ]
+}
