@@ -1,0 +1,188 @@
+{
+  "suite": "TestApp 入力制御テスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "半角英数フィールドに英数字を入力",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtAlphanumeric" },
+          "text": "abc123",
+          "description": "半角英数フィールドに「abc123」を入力"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtAlphanumeric" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": "abc123"
+          },
+          "description": "入力値が「abc123」であることを確認"
+        }
+      ]
+    },
+    {
+      "name": "数値フィールドに数字を入力",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtNumericOnly" },
+          "text": "12345",
+          "description": "数値フィールドに「12345」を入力"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtNumericOnly" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": "12345"
+          },
+          "description": "入力値が「12345」であることを確認"
+        }
+      ]
+    },
+    {
+      "name": "桁数制限フィールドの入力制限",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtMaxLength" },
+          "text": "ABCDE",
+          "description": "桁数制限フィールドに5文字を入力"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtMaxLength" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": "ABCDE"
+          },
+          "description": "5文字が入力されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "全角フィールドの存在確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "waitForControl",
+          "target": { "automationId": "TxtZenkaku" },
+          "description": "全角入力フィールドが存在することを確認"
+        },
+        {
+          "action": "waitForControl",
+          "target": { "automationId": "DtpDate" },
+          "description": "日付入力コントロールが存在することを確認"
+        }
+      ]
+    },
+    {
+      "name": "日付入力コントロールの存在確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "waitForControl",
+          "target": { "automationId": "DtpDate" },
+          "description": "DateTimePickerコントロールが存在することを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnInputBack" },
+          "description": "メインへ戻るボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻ることを確認"
+        }
+      ]
+    }
+  ]
+}

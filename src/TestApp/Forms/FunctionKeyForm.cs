@@ -10,6 +10,7 @@ public class FunctionKeyForm : Form
     public FunctionKeyForm()
     {
         Text = "ファンクションキー";
+        Name = "FunctionKeyForm";
         Size = new Size(800, 600);
         StartPosition = FormStartPosition.CenterScreen;
         KeyPreview = true;
@@ -24,6 +25,7 @@ public class FunctionKeyForm : Form
 
         var lblGuide = new Label
         {
+            Name = "LblKeyGuide",
             Text = "F1: ヘルプ  |  F5: リフレッシュ  |  F10: 保存  |  Esc: 閉じる",
             AutoSize = true,
             Location = new Point(20, 60),
@@ -32,6 +34,7 @@ public class FunctionKeyForm : Form
 
         _lblResult = new Label
         {
+            Name = "LblFKeyResult",
             Text = "最後の操作: (未操作)",
             AutoSize = true,
             Location = new Point(20, 100),
@@ -40,6 +43,7 @@ public class FunctionKeyForm : Form
 
         _lblLog = new Label
         {
+            Name = "LblFKeyLog",
             Text = "",
             Location = new Point(20, 140),
             Size = new Size(740, 340),
@@ -47,7 +51,7 @@ public class FunctionKeyForm : Form
         };
 
         // StatusStrip with function key guide
-        _statusStrip = new StatusStrip();
+        _statusStrip = new StatusStrip { Name = "FKeyStatusStrip" };
         _statusStrip.Items.Add(new ToolStripStatusLabel("F1:ヘルプ"));
         _statusStrip.Items.Add(new ToolStripSeparator());
         _statusStrip.Items.Add(new ToolStripStatusLabel("F5:更新"));
@@ -56,7 +60,7 @@ public class FunctionKeyForm : Form
         _statusStrip.Items.Add(new ToolStripSeparator());
         _statusStrip.Items.Add(new ToolStripStatusLabel("Esc:閉じる"));
 
-        var btnBack = new Button { Text = "メインへ戻る(&B)", Location = new Point(20, 490), Size = new Size(120, 30) };
+        var btnBack = new Button { Name = "BtnFKeyBack", Text = "メインへ戻る(&B)", Location = new Point(20, 490), Size = new Size(120, 30) };
         btnBack.Click += (s, e) => Close();
 
         Controls.AddRange([lblTitle, lblGuide, _lblResult, _lblLog, _statusStrip, btnBack]);

@@ -18,12 +18,14 @@ public class CrudForm : Form
     public CrudForm()
     {
         Text = "データCRUD";
+        Name = "CrudForm";
         Size = new Size(800, 600);
         StartPosition = FormStartPosition.CenterScreen;
 
         // DataGridView
         _grid = new DataGridView
         {
+            Name = "CrudDataGrid",
             Location = new Point(20, 20),
             Size = new Size(740, 300),
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
@@ -38,22 +40,22 @@ public class CrudForm : Form
 
         // Input form
         var lblName = new Label { Text = "名前:", Location = new Point(20, 340), AutoSize = true };
-        _txtName = new TextBox { Location = new Point(80, 337), Size = new Size(200, 25) };
+        _txtName = new TextBox { Name = "TxtItemName", Location = new Point(80, 337), Size = new Size(200, 25) };
 
         var lblDesc = new Label { Text = "説明:", Location = new Point(20, 375), AutoSize = true };
-        _txtDescription = new TextBox { Location = new Point(80, 372), Size = new Size(400, 25) };
+        _txtDescription = new TextBox { Name = "TxtItemDescription", Location = new Point(80, 372), Size = new Size(400, 25) };
 
         // Buttons
-        _btnAdd = new Button { Text = "追加(&A)", Location = new Point(20, 420), Size = new Size(100, 30) };
+        _btnAdd = new Button { Name = "BtnAdd", Text = "追加(&A)", Location = new Point(20, 420), Size = new Size(100, 30) };
         _btnAdd.Click += BtnAdd_Click;
 
-        _btnUpdate = new Button { Text = "更新(&U)", Location = new Point(130, 420), Size = new Size(100, 30), Enabled = false };
+        _btnUpdate = new Button { Name = "BtnUpdate", Text = "更新(&U)", Location = new Point(130, 420), Size = new Size(100, 30), Enabled = false };
         _btnUpdate.Click += BtnUpdate_Click;
 
-        _btnDelete = new Button { Text = "削除(&D)", Location = new Point(240, 420), Size = new Size(100, 30), Enabled = false };
+        _btnDelete = new Button { Name = "BtnDelete", Text = "削除(&D)", Location = new Point(240, 420), Size = new Size(100, 30), Enabled = false };
         _btnDelete.Click += BtnDelete_Click;
 
-        _btnBack = new Button { Text = "メインへ戻る(&B)", Location = new Point(20, 520), Size = new Size(120, 30) };
+        _btnBack = new Button { Name = "BtnCrudBack", Text = "メインへ戻る(&B)", Location = new Point(20, 520), Size = new Size(120, 30) };
         _btnBack.Click += (s, e) => Close();
 
         Controls.AddRange([_grid, lblName, _txtName, lblDesc, _txtDescription, _btnAdd, _btnUpdate, _btnDelete, _btnBack]);

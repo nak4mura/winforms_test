@@ -5,6 +5,7 @@ public class InputControlForm : Form
     public InputControlForm()
     {
         Text = "入力制御";
+        Name = "InputControlForm";
         Size = new Size(800, 600);
         StartPosition = FormStartPosition.CenterScreen;
 
@@ -20,7 +21,7 @@ public class InputControlForm : Form
 
         // 1. Alphanumeric only
         var lblAlpha = new Label { Text = "半角英数のみ:", Location = new Point(20, y), AutoSize = true };
-        var txtAlpha = new TextBox { Location = new Point(180, y - 3), Size = new Size(250, 25), ImeMode = ImeMode.Disable };
+        var txtAlpha = new TextBox { Name = "TxtAlphanumeric", Location = new Point(180, y - 3), Size = new Size(250, 25), ImeMode = ImeMode.Disable };
         txtAlpha.KeyPress += (s, e) =>
         {
             if (!char.IsLetterOrDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
@@ -31,13 +32,13 @@ public class InputControlForm : Form
 
         // 2. Full-width only (IME on)
         var lblZenkaku = new Label { Text = "全角のみ (IME):", Location = new Point(20, y), AutoSize = true };
-        var txtZenkaku = new TextBox { Location = new Point(180, y - 3), Size = new Size(250, 25), ImeMode = ImeMode.On };
+        var txtZenkaku = new TextBox { Name = "TxtZenkaku", Location = new Point(180, y - 3), Size = new Size(250, 25), ImeMode = ImeMode.On };
         var lblZenkakuHint = new Label { Text = "※ IMEがオンになります", Location = new Point(440, y), AutoSize = true, ForeColor = Color.Gray };
         y += 45;
 
         // 3. Numeric only
         var lblNumeric = new Label { Text = "数値のみ:", Location = new Point(20, y), AutoSize = true };
-        var txtNumeric = new TextBox { Location = new Point(180, y - 3), Size = new Size(250, 25), ImeMode = ImeMode.Disable };
+        var txtNumeric = new TextBox { Name = "TxtNumericOnly", Location = new Point(180, y - 3), Size = new Size(250, 25), ImeMode = ImeMode.Disable };
         txtNumeric.KeyPress += (s, e) =>
         {
             if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
@@ -48,16 +49,16 @@ public class InputControlForm : Form
 
         // 4. Max length
         var lblMaxLen = new Label { Text = "桁数制限 (5桁):", Location = new Point(20, y), AutoSize = true };
-        var txtMaxLen = new TextBox { Location = new Point(180, y - 3), Size = new Size(250, 25), MaxLength = 5 };
+        var txtMaxLen = new TextBox { Name = "TxtMaxLength", Location = new Point(180, y - 3), Size = new Size(250, 25), MaxLength = 5 };
         var lblMaxLenHint = new Label { Text = "※ 最大5文字まで", Location = new Point(440, y), AutoSize = true, ForeColor = Color.Gray };
         y += 45;
 
         // 5. Date picker
         var lblDate = new Label { Text = "日付入力:", Location = new Point(20, y), AutoSize = true };
-        var dtpDate = new DateTimePicker { Location = new Point(180, y - 3), Size = new Size(250, 25), Format = DateTimePickerFormat.Short };
+        var dtpDate = new DateTimePicker { Name = "DtpDate", Location = new Point(180, y - 3), Size = new Size(250, 25), Format = DateTimePickerFormat.Short };
         var lblDateHint = new Label { Text = "※ DateTimePicker", Location = new Point(440, y), AutoSize = true, ForeColor = Color.Gray };
 
-        var btnBack = new Button { Text = "メインへ戻る(&B)", Location = new Point(20, 520), Size = new Size(120, 30) };
+        var btnBack = new Button { Name = "BtnInputBack", Text = "メインへ戻る(&B)", Location = new Point(20, 520), Size = new Size(120, 30) };
         btnBack.Click += (s, e) => Close();
 
         Controls.AddRange([
