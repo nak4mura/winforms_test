@@ -1,0 +1,15 @@
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\bin\Debug\net9.0-windows\TestApp.exe
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\bin\Debug\net9.0-windows\TestApp.deps.json
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\bin\Debug\net9.0-windows\TestApp.runtimeconfig.json
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\bin\Debug\net9.0-windows\TestApp.dll
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\bin\Debug\net9.0-windows\TestApp.pdb
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.AssemblyInfoInputs.cache
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.AssemblyInfo.cs
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.csproj.CoreCompileInputs.cache
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.sourcelink.json
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.dll
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\refint\TestApp.dll
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.pdb
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\TestApp.genruntimeconfig.cache
+C:\Users\k4mrj\git_projets\winforms_test\src\TestApp\obj\Debug\net9.0-windows\ref\TestApp.dll
