@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using WinFormsE2E.Automation;
+using WinFormsE2E.Evidence;
 using WinFormsE2E.Models;
 using WinFormsE2E.Reporting;
 
@@ -11,15 +12,13 @@ public class TestRunner
     private readonly List<IResultReporter> _reporters;
     private readonly StepExecutor _stepExecutor = new();
     private readonly WindowTracker _windowTracker = new();
-    private readonly bool _evidenceEnabled;
-    private readonly string? _evidenceOutputDir;
+    private readonly IEvidenceCollector? _evidenceCollector;
 
-    public TestRunner(TestSuite suite, List<IResultReporter> reporters, bool evidenceEnabled = false, string? evidenceOutputDir = null)
+    public TestRunner(TestSuite suite, List<IResultReporter> reporters, IEvidenceCollector? evidenceCollector = null)
     {
         _suite = suite;
         _reporters = reporters;
-        _evidenceEnabled = evidenceEnabled;
-        _evidenceOutputDir = evidenceOutputDir;
+        _evidenceCollector = evidenceCollector;
     }
 
     public SuiteResult Run()
@@ -84,6 +83,8 @@ public class TestRunner
             reporter.ReportScenarioStart(scenario.Name);
         }
 
+        try { _evidenceCollector?.OnScenarioStart(scenario.Name); } catch { }
+
         var failed = false;
 
         foreach (var step in scenario.Steps)
@@ -101,7 +102,7 @@ public class TestRunner
             }
             else
             {
-                stepResult = _stepExecutor.Execute(step, context);
+                stepResult = _stepExecutor.Execute(step, context, _evidenceCollector);
             }
 
             scenarioResult.Steps.Add(stepResult);
@@ -119,6 +120,8 @@ public class TestRunner
 
         scenarioStopwatch.Stop();
         scenarioResult.ElapsedMs = scenarioStopwatch.ElapsedMilliseconds;
+
+        try { _evidenceCollector?.OnScenarioEnd(); } catch { }
 
         foreach (var reporter in _reporters)
         {

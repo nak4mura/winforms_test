@@ -1,5 +1,6 @@
 using System.Text.Json;
 using WinFormsE2E.Core;
+using WinFormsE2E.Evidence;
 using WinFormsE2E.Reporting;
 
 namespace WinFormsE2E;
@@ -62,13 +63,23 @@ public class Program
                 evidenceOutputDir = System.IO.Path.Combine("evidence", $"{timestamp}_{suiteName}");
             }
 
+            IEvidenceCollector? evidenceCollector = null;
+            if (evidenceEnabled && evidenceOutputDir != null)
+            {
+                evidenceCollector = new ScreenshotCollector(evidenceOutputDir);
+            }
+
             var reporters = new List<IResultReporter> { new ConsoleReporter(verbose) };
             if (outputPath != null)
             {
                 reporters.Add(new JsonReporter(outputPath));
             }
+            if (evidenceCollector != null && evidenceOutputDir != null)
+            {
+                reporters.Add(new EvidenceReporter(evidenceCollector.GetBundle(), evidenceOutputDir));
+            }
 
-            var runner = new TestRunner(suite, reporters, evidenceEnabled, evidenceOutputDir);
+            var runner = new TestRunner(suite, reporters, evidenceCollector);
             var result = runner.Run();
 
             return result.Passed ? 0 : 1;
