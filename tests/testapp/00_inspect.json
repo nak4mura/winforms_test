@@ -1,0 +1,100 @@
+{
+  "suite": "TestApp UI要素インスペクション",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "メイン画面のUI要素を調査",
+      "steps": [
+        {
+          "action": "inspect",
+          "ms": 5,
+          "description": "メイン画面のUI要素ツリーを出力"
+        }
+      ]
+    },
+    {
+      "name": "CRUD画面のUI要素を調査",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "inspect",
+          "ms": 5,
+          "description": "CRUD画面のUI要素ツリーを出力"
+        }
+      ]
+    },
+    {
+      "name": "メッセージ画面のUI要素を調査",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "inspect",
+          "ms": 5,
+          "description": "メッセージ画面のUI要素ツリーを出力"
+        }
+      ]
+    },
+    {
+      "name": "入力制御画面のUI要素を調査",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "inspect",
+          "ms": 5,
+          "description": "入力制御画面のUI要素ツリーを出力"
+        }
+      ]
+    }
+  ]
+}

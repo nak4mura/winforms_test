@@ -33,24 +33,26 @@ public class TestRunner
             process = LaunchApplication(_suite.Application);
             context.AppProcess = process;
 
-            var window = _windowTracker.WaitForWindow(
+            var mainWindow = _windowTracker.WaitForWindow(
                 _suite.Application.WindowTitle,
                 _suite.Application.StartupWaitMs,
                 _suite.Settings.RetryIntervalMs);
 
-            if (window == null)
+            if (mainWindow == null)
             {
                 Console.Error.WriteLine($"Failed to find application window: {_suite.Application.WindowTitle}");
                 suiteResult.ElapsedMs = suiteStopwatch.ElapsedMilliseconds;
                 return suiteResult;
             }
 
-            context.CurrentWindow = window;
+            context.MainWindow = mainWindow;
+            context.CurrentWindow = mainWindow;
 
             foreach (var scenario in _suite.Scenarios)
             {
                 var scenarioResult = RunScenario(scenario, context);
                 suiteResult.Scenarios.Add(scenarioResult);
+                ResetToMainWindow(context);
             }
         }
         finally
@@ -134,6 +136,64 @@ public class TestRunner
         };
 
         return Process.Start(startInfo);
+    }
+
+    private void ResetToMainWindow(TestContext context)
+    {
+        if (context.MainWindow == null || context.AppProcess == null) return;
+
+        var processId = context.AppProcess.Id;
+        var mainWindowHandle = context.MainWindow.Current.NativeWindowHandle;
+
+        // Close any top-level windows belonging to the same process (except MainWindow)
+        try
+        {
+            var allWindows = System.Windows.Automation.AutomationElement.RootElement.FindAll(
+                System.Windows.Automation.TreeScope.Children,
+                new System.Windows.Automation.PropertyCondition(
+                    System.Windows.Automation.AutomationElement.ControlTypeProperty,
+                    System.Windows.Automation.ControlType.Window));
+
+            foreach (System.Windows.Automation.AutomationElement window in allWindows)
+            {
+                try
+                {
+                    if (window.Current.ProcessId == processId &&
+                        window.Current.NativeWindowHandle != mainWindowHandle)
+                    {
+                        _windowTracker.CloseWindow(window);
+                    }
+                }
+                catch
+                {
+                    // Best effort cleanup
+                }
+            }
+        }
+        catch
+        {
+            // Best effort cleanup
+        }
+
+        // Wait briefly for MainWindow to become visible again (MainForm re-shows on child close)
+        Thread.Sleep(200);
+
+        // Re-acquire MainWindow reference in case it was recreated
+        var mainWindow = _windowTracker.WaitForWindow(
+            _suite.Application.WindowTitle,
+            _suite.Settings.DefaultTimeoutMs,
+            _suite.Settings.RetryIntervalMs);
+
+        if (mainWindow != null)
+        {
+            context.MainWindow = mainWindow;
+            context.CurrentWindow = mainWindow;
+            try { mainWindow.SetFocus(); } catch { }
+        }
+        else
+        {
+            context.CurrentWindow = context.MainWindow;
+        }
     }
 
     private static void TryCloseProcess(Process? process)

@@ -1,0 +1,316 @@
+{
+  "suite": "TestApp メッセージ条件分岐テスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "削除確認ダイアログ - はいを選択",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDeleteConfirm" },
+          "description": "削除確認ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "削除確認",
+          "timeoutMs": 3000,
+          "description": "削除確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "はい(Y)" },
+          "description": "「はい」ボタンをクリック"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "削除が実行されました"
+          },
+          "description": "結果ラベルに「削除が実行されました」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "削除確認ダイアログ - いいえを選択",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDeleteConfirm" },
+          "description": "削除確認ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "削除確認",
+          "timeoutMs": 3000,
+          "description": "削除確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "いいえ(N)" },
+          "description": "「いいえ」ボタンをクリック"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "削除がキャンセルされました"
+          },
+          "description": "結果ラベルに「削除がキャンセルされました」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "保存確認ダイアログ - はいを選択",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSaveConfirm" },
+          "description": "保存確認ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "保存確認",
+          "timeoutMs": 3000,
+          "description": "保存確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "はい(Y)" },
+          "description": "「はい」ボタンをクリック"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "保存が実行されました"
+          },
+          "description": "結果ラベルに「保存が実行されました」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "バリデーション - 空入力でエラー",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnValidation" },
+          "description": "バリデーションボタンをクリック（入力値なし）"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力エラー",
+          "timeoutMs": 3000,
+          "description": "エラーダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリック"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "バリデーションエラー"
+          },
+          "description": "結果ラベルに「バリデーションエラー」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "バリデーション - 入力ありで成功",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtMessageInput" },
+          "text": "テスト値",
+          "description": "入力値に「テスト値」を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnValidation" },
+          "description": "バリデーションボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "処理完了を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "バリデーション成功"
+          },
+          "description": "結果ラベルに「バリデーション成功」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "成功通知メッセージ",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSuccess" },
+          "description": "成功通知ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "成功",
+          "timeoutMs": 3000,
+          "description": "成功ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリック"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "成功通知を表示しました"
+          },
+          "description": "結果ラベルに「成功通知を表示しました」が表示されていることを確認"
+        }
+      ]
+    }
+  ]
+}

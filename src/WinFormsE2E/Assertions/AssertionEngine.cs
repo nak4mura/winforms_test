@@ -83,7 +83,36 @@ public class AssertionEngine
         {
             return ((ValuePattern)pattern).Current.Value;
         }
+
+        // For DataGridView and other grid controls, collect values from all descendant cells
+        var controlType = element.Current.ControlType;
+        if (controlType == ControlType.DataGrid || controlType == ControlType.Table || controlType == ControlType.List)
+        {
+            return GetGridCellValues(element);
+        }
+
         return null;
+    }
+
+    private static string? GetGridCellValues(AutomationElement gridElement)
+    {
+        var values = new List<string>();
+        var condition = new PropertyCondition(AutomationElement.IsValuePatternAvailableProperty, true);
+        var cells = gridElement.FindAll(TreeScope.Descendants, condition);
+
+        foreach (AutomationElement cell in cells)
+        {
+            if (cell.TryGetCurrentPattern(ValuePattern.Pattern, out var cellPattern))
+            {
+                var val = ((ValuePattern)cellPattern).Current.Value;
+                if (!string.IsNullOrEmpty(val))
+                {
+                    values.Add(val);
+                }
+            }
+        }
+
+        return values.Count > 0 ? string.Join(" | ", values) : null;
     }
 
     private static string? GetToggleState(AutomationElement element)

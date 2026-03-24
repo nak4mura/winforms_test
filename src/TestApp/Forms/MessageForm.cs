@@ -8,6 +8,7 @@ public class MessageForm : Form
     public MessageForm()
     {
         Text = "メッセージ";
+        Name = "MessageForm";
         Size = new Size(800, 600);
         StartPosition = FormStartPosition.CenterScreen;
 
@@ -15,31 +16,32 @@ public class MessageForm : Form
 
         // Validation input
         var lblInput = new Label { Text = "入力値:", Location = new Point(20, 70), AutoSize = true };
-        _txtInput = new TextBox { Location = new Point(80, 67), Size = new Size(200, 25) };
+        _txtInput = new TextBox { Name = "TxtMessageInput", Location = new Point(80, 67), Size = new Size(200, 25) };
 
         // Buttons
-        var btnDeleteConfirm = new Button { Text = "削除確認(&D)", Location = new Point(20, 110), Size = new Size(140, 35) };
+        var btnDeleteConfirm = new Button { Name = "BtnDeleteConfirm", Text = "削除確認(&D)", Location = new Point(20, 110), Size = new Size(140, 35) };
         btnDeleteConfirm.Click += BtnDeleteConfirm_Click;
 
-        var btnSaveConfirm = new Button { Text = "保存確認(&S)", Location = new Point(170, 110), Size = new Size(140, 35) };
+        var btnSaveConfirm = new Button { Name = "BtnSaveConfirm", Text = "保存確認(&S)", Location = new Point(170, 110), Size = new Size(140, 35) };
         btnSaveConfirm.Click += BtnSaveConfirm_Click;
 
-        var btnValidation = new Button { Text = "バリデーション(&V)", Location = new Point(320, 110), Size = new Size(140, 35) };
+        var btnValidation = new Button { Name = "BtnValidation", Text = "バリデーション(&V)", Location = new Point(320, 110), Size = new Size(140, 35) };
         btnValidation.Click += BtnValidation_Click;
 
-        var btnSuccess = new Button { Text = "成功通知(&N)", Location = new Point(470, 110), Size = new Size(140, 35) };
+        var btnSuccess = new Button { Name = "BtnSuccess", Text = "成功通知(&N)", Location = new Point(470, 110), Size = new Size(140, 35) };
         btnSuccess.Click += BtnSuccess_Click;
 
         // Result display
         _lblResult = new Label
         {
+            Name = "LblMessageResult",
             Text = "結果: (未操作)",
             Location = new Point(20, 170),
             AutoSize = true,
             Font = new Font(Font.FontFamily, 11)
         };
 
-        var btnBack = new Button { Text = "メインへ戻る(&B)", Location = new Point(20, 520), Size = new Size(120, 30) };
+        var btnBack = new Button { Name = "BtnMessageBack", Text = "メインへ戻る(&B)", Location = new Point(20, 520), Size = new Size(120, 30) };
         btnBack.Click += (s, e) => Close();
 
         Controls.AddRange([lblTitle, lblInput, _txtInput, btnDeleteConfirm, btnSaveConfirm, btnValidation, btnSuccess, _lblResult, btnBack]);

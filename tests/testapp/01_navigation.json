@@ -1,0 +1,171 @@
+{
+  "suite": "TestApp 画面遷移テスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "CRUD画面への遷移と戻り",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "データCRUD"
+          },
+          "description": "CRUD画面のタイトルを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnCrudBack" },
+          "description": "メインへ戻るボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻るまで待機"
+        }
+      ]
+    },
+    {
+      "name": "メッセージ画面への遷移と戻り",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "メッセージ"
+          },
+          "description": "メッセージ画面のタイトルを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnMessageBack" },
+          "description": "メインへ戻るボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻るまで待機"
+        }
+      ]
+    },
+    {
+      "name": "ファンクションキー画面への遷移と戻り",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "ファンクションキー"
+          },
+          "description": "ファンクションキー画面のタイトルを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnFKeyBack" },
+          "description": "メインへ戻るボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻るまで待機"
+        }
+      ]
+    },
+    {
+      "name": "入力制御画面への遷移と戻り",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "入力制御"
+          },
+          "description": "入力制御画面のタイトルを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnInputBack" },
+          "description": "メインへ戻るボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻るまで待機"
+        }
+      ]
+    }
+  ]
+}

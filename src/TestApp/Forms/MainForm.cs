@@ -9,19 +9,20 @@ public class MainForm : Form
     public MainForm()
     {
         Text = "テストアプリケーション";
+        Name = "MainForm";
         Size = new Size(800, 600);
         StartPosition = FormStartPosition.CenterScreen;
 
-        _menuStrip = new MenuStrip();
-        var menuScreens = new ToolStripMenuItem("画面(&S)");
-        menuScreens.DropDownItems.Add(new ToolStripMenuItem("データCRUD(&C)", null, (s, e) => OpenForm<CrudForm>()));
-        menuScreens.DropDownItems.Add(new ToolStripMenuItem("メッセージ(&M)", null, (s, e) => OpenForm<MessageForm>()));
-        menuScreens.DropDownItems.Add(new ToolStripMenuItem("ファンクションキー(&F)", null, (s, e) => OpenForm<FunctionKeyForm>()));
-        menuScreens.DropDownItems.Add(new ToolStripMenuItem("入力制御(&I)", null, (s, e) => OpenForm<InputControlForm>()));
+        _menuStrip = new MenuStrip { Name = "MainMenuStrip" };
+        var menuScreens = new ToolStripMenuItem("画面(&S)") { Name = "MenuScreens" };
+        menuScreens.DropDownItems.Add(new ToolStripMenuItem("データCRUD(&C)", null, (s, e) => OpenForm<CrudForm>()) { Name = "MenuCrud" });
+        menuScreens.DropDownItems.Add(new ToolStripMenuItem("メッセージ(&M)", null, (s, e) => OpenForm<MessageForm>()) { Name = "MenuMessage" });
+        menuScreens.DropDownItems.Add(new ToolStripMenuItem("ファンクションキー(&F)", null, (s, e) => OpenForm<FunctionKeyForm>()) { Name = "MenuFunctionKey" });
+        menuScreens.DropDownItems.Add(new ToolStripMenuItem("入力制御(&I)", null, (s, e) => OpenForm<InputControlForm>()) { Name = "MenuInputControl" });
         _menuStrip.Items.Add(menuScreens);
 
-        _statusStrip = new StatusStrip();
-        _statusLabel = new ToolStripStatusLabel("メイン画面");
+        _statusStrip = new StatusStrip { Name = "MainStatusStrip" };
+        _statusLabel = new ToolStripStatusLabel("メイン画面") { Name = "StatusLabel" };
         _statusStrip.Items.Add(_statusLabel);
 
         MainMenuStrip = _menuStrip;

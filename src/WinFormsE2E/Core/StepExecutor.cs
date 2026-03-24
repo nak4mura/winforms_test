@@ -33,6 +33,7 @@ public class StepExecutor
                 "switchwindow" => ExecuteSwitchWindow(step, context),
                 "closewindow" => ExecuteCloseWindow(step, context),
                 "wait" => ExecuteWait(step),
+                "inspect" => ExecuteInspect(step, context),
                 _ => throw new InvalidOperationException($"Unknown action: {step.Action}")
             };
 
@@ -198,6 +199,45 @@ public class StepExecutor
         var ms = step.Ms ?? 1000;
         Thread.Sleep(ms);
         return StepResult.Pass(step.DisplayName, 0);
+    }
+
+    private StepResult ExecuteInspect(TestStep step, TestContext context)
+    {
+        if (context.CurrentWindow == null) throw new InvalidOperationException("No current window.");
+        var maxDepth = step.Ms ?? 5; // reuse 'ms' field as max depth
+        Console.WriteLine("=== UI Tree Inspection ===");
+        DumpElement(context.CurrentWindow, 0, (int)maxDepth);
+        Console.WriteLine("=== End Inspection ===");
+        return StepResult.Pass(step.DisplayName, 0);
+    }
+
+    private static void DumpElement(AutomationElement element, int depth, int maxDepth)
+    {
+        if (depth > maxDepth) return;
+        var indent = new string(' ', depth * 2);
+        try
+        {
+            var current = element.Current;
+            Console.WriteLine($"{indent}[{current.ControlType.ProgrammaticName}] " +
+                $"Name=\"{current.Name}\" " +
+                $"ClassName=\"{current.ClassName}\" " +
+                $"AutomationId=\"{current.AutomationId}\"");
+        }
+        catch (ElementNotAvailableException)
+        {
+            Console.WriteLine($"{indent}[unavailable]");
+            return;
+        }
+
+        try
+        {
+            var children = element.FindAll(TreeScope.Children, Condition.TrueCondition);
+            foreach (AutomationElement child in children)
+            {
+                DumpElement(child, depth + 1, maxDepth);
+            }
+        }
+        catch (ElementNotAvailableException) { }
     }
 
     private AutomationElement FindElement(TestStep step, TestContext context)
