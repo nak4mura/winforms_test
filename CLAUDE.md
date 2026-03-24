@@ -1,121 +1,121 @@
-# CLAUDE.md — WinForms E2E Test Framework
+# CLAUDE.md — WinForms E2E テストフレームワーク
 
-This document describes the codebase structure, development conventions, and workflows for AI assistants working on this repository.
-
----
-
-## Project Overview
-
-This is a **WinForms E2E (End-to-End) test automation framework** for testing Windows Forms (.NET) applications via Windows UI Automation. It consists of:
-
-1. **`src/WinFormsE2E/`** — CLI test runner that executes JSON-defined test suites against a running WinForms app
-2. **`src/TestApp/`** — A sample WinForms application used to validate the test runner itself
-3. **`tests/testapp/`** — JSON test suite files targeting `TestApp`
+このドキュメントは、AIアシスタントがこのリポジトリで作業する際に必要なコードベース構造、開発規約、ワークフローを説明します。
 
 ---
 
-## Repository Branch Strategy
+## プロジェクト概要
+
+Windows UI Automation を用いて Windows Forms (.NET) アプリケーションをテストする **WinForms E2E（エンドツーエンド）テスト自動化フレームワーク**です。以下の3要素で構成されます。
+
+1. **`src/WinFormsE2E/`** — JSONで定義されたテストスイートを実行するCLIテストランナー
+2. **`src/TestApp/`** — テストランナー自身の動作確認用サンプル WinForms アプリケーション
+3. **`tests/testapp/`** — `TestApp` を対象とした JSON テストスイートファイル群
+
+---
+
+## ブランチ戦略
 
 ```
-main          ← stable releases only (currently just the initial commit)
-develop       ← integration branch; all feature PRs target here
-feature/xxx   ← individual feature branches
+main          ← 安定リリースのみ（現時点では初回コミットのみ）
+develop       ← 統合ブランチ。全ての feature PR はここをターゲットにする
+feature/xxx   ← 個別の機能ブランチ
 ```
 
-- **Always develop on `feature/` branches** cut from `develop`
-- **PRs always target `develop`**, never `main`
-- `main` is merged from `develop` at stable release points
+- **常に `develop` から切った `feature/` ブランチで開発する**
+- **PR のターゲットは常に `develop`**（`main` には直接 PR しない）
+- `main` は安定リリース時のみ `develop` からマージする
 
 ---
 
-## Directory Structure
+## ディレクトリ構造
 
 ```
 winforms_test/
 ├── src/
-│   ├── WinFormsE2E/               # Main CLI test runner
-│   │   ├── Program.cs             # Entry point; CLI argument parsing
+│   ├── WinFormsE2E/               # メイン CLI テストランナー
+│   │   ├── Program.cs             # エントリポイント。CLIオプション解析
 │   │   ├── Core/
-│   │   │   ├── StepExecutor.cs    # Dispatches test step actions
-│   │   │   ├── TestRunner.cs      # Orchestrates suite/scenario execution
-│   │   │   └── TestContext.cs     # Runtime state (current window, process, etc.)
+│   │   │   ├── StepExecutor.cs    # テストステップのアクションをディスパッチ
+│   │   │   ├── TestRunner.cs      # スイート／シナリオ実行のオーケストレーション
+│   │   │   └── TestContext.cs     # 実行時状態（現在のウィンドウ、プロセス等）
 │   │   ├── Automation/
-│   │   │   ├── ControlInteractor.cs  # Low-level UI Automation interactions
-│   │   │   └── WindowTracker.cs      # Window discovery and switching
+│   │   │   ├── ControlInteractor.cs  # UI Automation 低レベル操作
+│   │   │   └── WindowTracker.cs      # ウィンドウの検索と切り替え
 │   │   ├── Assertions/
-│   │   │   └── AssertionEngine.cs    # Evaluates assert/assertWindow steps
-│   │   ├── Models/                   # TestSuite, TestScenario, TestStep, StepResult, etc.
+│   │   │   └── AssertionEngine.cs    # assert/assertWindow ステップの評価
+│   │   ├── Models/                   # TestSuite, TestScenario, TestStep, StepResult 等
 │   │   ├── Reporting/
 │   │   │   ├── ConsoleReporter.cs
 │   │   │   ├── JsonReporter.cs
-│   │   │   └── EvidenceReporter.cs   # HTML evidence report emitter
-│   │   └── Evidence/                 # Screenshot capture & evidence collection
+│   │   │   └── EvidenceReporter.cs   # HTML エビデンスレポート出力
+│   │   └── Evidence/                 # スクリーンショット取得・エビデンス収集
 │   │       ├── IEvidenceCollector.cs
 │   │       ├── IEvidenceAttachment.cs
-│   │       ├── IDbEvidenceProvider.cs  # Interface for future DB evidence
-│   │       ├── ScreenshotCollector.cs  # Implements IEvidenceCollector
-│   │       ├── ScreenshotCapture.cs    # Win32 window screenshot via GDI
-│   │       ├── HtmlReportGenerator.cs  # Generates report.html
-│   │       ├── EvidenceBundle.cs       # Data model for collected evidence
-│   │       └── StepExecutionContext.cs # Per-step context passed to collector
-│   └── TestApp/                    # Sample WinForms app under test
+│   │       ├── IDbEvidenceProvider.cs  # 将来の DB エビデンス用インターフェース
+│   │       ├── ScreenshotCollector.cs  # IEvidenceCollector の実装
+│   │       ├── ScreenshotCapture.cs    # GDI による Win32 ウィンドウスクリーンショット
+│   │       ├── HtmlReportGenerator.cs  # report.html の生成
+│   │       ├── EvidenceBundle.cs       # 収集エビデンスのデータモデル
+│   │       └── StepExecutionContext.cs # コレクターに渡すステップ単位コンテキスト
+│   └── TestApp/                    # テスト対象のサンプル WinForms アプリ
 │       └── Forms/
-│           ├── MainForm.cs         # Main window with menu navigation
-│           ├── CrudForm.cs         # DataGridView CRUD screen
-│           ├── MessageForm.cs      # MessageBox / dialog conditional flow
-│           ├── FunctionKeyForm.cs  # F1/F5/F10/Esc key bindings
-│           └── InputControlForm.cs # Input validation (half-width, IME, numeric, etc.)
+│           ├── MainForm.cs         # メニューによる画面遷移を持つメインウィンドウ
+│           ├── CrudForm.cs         # DataGridView による CRUD 画面
+│           ├── MessageForm.cs      # MessageBox・ダイアログの条件分岐
+│           ├── FunctionKeyForm.cs  # F1/F5/F10/Esc キーバインド
+│           └── InputControlForm.cs # 入力制御（半角英数、IME、数値のみ等）
 ├── tests/
-│   └── testapp/                    # JSON test suites for TestApp
-│       ├── 00_inspect.json         # UI tree inspection (debugging aid)
-│       ├── 01_navigation.json      # Screen navigation tests
-│       ├── 02_crud.json            # CRUD operation tests
-│       ├── 03_message.json         # MessageBox conditional branch tests
-│       ├── 04_functionkey.json     # Function key tests
-│       └── 05_input_control.json   # Input restriction tests
+│   └── testapp/                    # TestApp 用 JSON テストスイート
+│       ├── 00_inspect.json         # UI ツリーインスペクション（デバッグ用）
+│       ├── 01_navigation.json      # 画面遷移テスト
+│       ├── 02_crud.json            # CRUD 操作テスト
+│       ├── 03_message.json         # MessageBox 条件分岐テスト
+│       ├── 04_functionkey.json     # ファンクションキーテスト
+│       └── 05_input_control.json   # 入力制御テスト
 └── README.md
 ```
 
 ---
 
-## Build & Run
+## ビルド & 実行
 
-### Prerequisites
+### 前提条件
 - .NET 9 SDK
-- Windows (Windows UI Automation and WinForms are Windows-only)
+- Windows（Windows UI Automation および WinForms は Windows 専用 API）
 
-### Build
+### ビルド
 ```bash
 dotnet build
 ```
 
-### Run a test suite
+### テストスイートの実行
 ```bash
-# Basic
+# 基本
 dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json
 
-# With verbose console output
+# 詳細コンソール出力あり
 dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --verbose
 
-# Save results as JSON
+# 結果を JSON で保存
 dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --output results.json
 
-# Enable evidence (screenshots + HTML report, auto-named output dir)
+# エビデンス有効化（スクリーンショット + HTML レポート、出力先は自動命名）
 dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evidence
 
-# Evidence with explicit output directory
+# エビデンス出力先を明示指定
 dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evidence-output evidence/run1
 ```
 
-The test runner exits with code `0` (all passed) or `1` (failures). Code `2` indicates a configuration/startup error.
+テストランナーの終了コード: `0`（全件合格）、`1`（失敗あり）、`2`（設定・起動エラー）。
 
 ---
 
-## Test Suite JSON Format
+## テストスイート JSON フォーマット
 
 ```json
 {
-  "suite": "Suite display name",
+  "suite": "スイート表示名",
   "application": {
     "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
     "startArgs": "",
@@ -128,12 +128,12 @@ The test runner exits with code `0` (all passed) or `1` (failures). Code `2` ind
   },
   "scenarios": [
     {
-      "name": "Scenario name",
+      "name": "シナリオ名",
       "steps": [
         {
           "action": "click",
           "target": { "automationId": "BtnAdd" },
-          "description": "Human-readable description"
+          "description": "人間が読める説明"
         }
       ]
     }
@@ -141,92 +141,92 @@ The test runner exits with code `0` (all passed) or `1` (failures). Code `2` ind
 }
 ```
 
-### Target Selectors
-Elements are located by one or more of:
-| Field | Description |
+### ターゲットセレクター
+要素は以下のフィールドで指定します。
+| フィールド | 説明 |
 |---|---|
-| `name` | Matches `AutomationElement.Current.Name` (control text or explicit Name) |
-| `automationId` | Matches `AutomationElement.Current.AutomationId` — set via the WinForms `Name` property |
+| `name` | `AutomationElement.Current.Name` に一致（コントロールテキストまたは明示的な Name） |
+| `automationId` | `AutomationElement.Current.AutomationId` に一致 — WinForms の `Name` プロパティで設定 |
 
-### Supported Actions
-| Action | Description |
+### サポートアクション一覧
+| アクション | 説明 |
 |---|---|
-| `click` | Click a UI element |
-| `type` | Type text into a focused text box (`value` field) |
-| `clear` | Clear a text box |
-| `select` | Select an item in a list or combo box by name |
-| `assert` | Assert an element's value/text against `expect` |
-| `assertWindow` | Assert the current window's properties against `expect` |
-| `waitForWindow` | Wait for a window with matching `windowTitle` to appear |
-| `switchWindow` | Switch current context to a window matching `windowTitle` |
-| `closeWindow` | Close the current window |
-| `wait` | Pause execution for `ms` milliseconds |
-| `inspect` | Dump the UI Automation tree to console (debugging; uses `ms` as max depth) |
+| `click` | UI 要素をクリック |
+| `type` | テキストボックスにテキストを入力（`value` フィールド） |
+| `clear` | テキストボックスをクリア |
+| `select` | リストまたはコンボボックスの項目を名前で選択 |
+| `assert` | 要素の値／テキストを `expect` と照合してアサート |
+| `assertWindow` | 現在のウィンドウのプロパティを `expect` と照合してアサート |
+| `waitForWindow` | `windowTitle` に一致するウィンドウが表示されるまで待機 |
+| `switchWindow` | `windowTitle` に一致するウィンドウにコンテキストを切り替え |
+| `closeWindow` | 現在のウィンドウを閉じる |
+| `wait` | `ms` ミリ秒だけ実行を一時停止 |
+| `inspect` | UI Automation ツリーをコンソールにダンプ（デバッグ用。`ms` を最大深度として使用） |
 
-**Pending (see open issues):**
-- `expandcollapse` — Open/close a combo box drop-down (Issue #10)
+**実装予定（未対応）:**
+- `expandcollapse` — コンボボックスのドロップダウンを開く／閉じる（Issue #10）
 
-### Assertion `expect` Object
+### アサート `expect` オブジェクト
 ```json
 {
   "property": "Name",
   "operator": "contains",
-  "value": "expected text"
+  "value": "期待するテキスト"
 }
 ```
-Operators: `equals`, `contains`, `startsWith`, `endsWith`, `notEquals`
+演算子: `equals`, `contains`, `startsWith`, `endsWith`, `notEquals`
 
 ---
 
-## Key Architectural Conventions
+## 主要アーキテクチャ規約
 
-### TestApp: Control Naming for AutomationId
-Every interactable control in `TestApp` **must** have its WinForms `Name` property set to a descriptive PascalCase identifier. This `Name` becomes the `AutomationId` used in test JSON.
+### TestApp: AutomationId のためのコントロール命名
+`TestApp` のすべての操作対象コントロールは、WinForms の `Name` プロパティに PascalCase の識別子を**必ず設定**してください。この `Name` がテスト JSON で使用する `AutomationId` になります。
 
 ```csharp
-// Good — has a Name for test targeting
+// 良い例 — テスト対象の Name が設定されている
 _btnAdd = new Button { Name = "BtnAdd", Text = "追加(&A)", ... };
 
-// Bad — no Name set, can only be targeted by Text
+// 悪い例 — Name 未設定。Text でしかターゲット指定できない
 _btnAdd = new Button { Text = "追加(&A)", ... };
 ```
 
-Naming conventions:
-- Buttons: `BtnXxx` (e.g., `BtnAdd`, `BtnUpdate`, `BtnCrudBack`)
-- TextBoxes: `TxtXxx` (e.g., `TxtItemName`, `TxtItemDescription`)
-- DataGridView: `XxxDataGrid` (e.g., `CrudDataGrid`)
-- Forms: `XxxForm` (e.g., `CrudForm`, `MainForm`)
+命名規則:
+- ボタン: `BtnXxx`（例: `BtnAdd`, `BtnUpdate`, `BtnCrudBack`）
+- テキストボックス: `TxtXxx`（例: `TxtItemName`, `TxtItemDescription`）
+- DataGridView: `XxxDataGrid`（例: `CrudDataGrid`）
+- フォーム: `XxxForm`（例: `CrudForm`, `MainForm`）
 
-### StepExecutor: Adding New Actions
-Actions are dispatched via a `switch` expression in `StepExecutor.Execute()`. To add a new action:
-1. Add a case to the `switch` in `Execute()`:
+### StepExecutor: 新しいアクションの追加方法
+アクションは `StepExecutor.Execute()` 内の `switch` 式でディスパッチされます。新しいアクションを追加する手順:
+1. `Execute()` の `switch` にケースを追加:
    ```csharp
    "expandcollapse" => ExecuteExpandCollapse(step, context),
    ```
-2. Implement the private method `ExecuteExpandCollapse(TestStep step, TestContext context)`.
-3. Return `StepResult.Pass(...)` on success or throw an exception (caught by the outer try/catch which returns `StepResult.Err(...)`).
+2. プライベートメソッド `ExecuteExpandCollapse(TestStep step, TestContext context)` を実装する。
+3. 成功時は `StepResult.Pass(...)` を返す。失敗時は例外をスローする（外側の try/catch が `StepResult.Err(...)` を返す）。
 
-### Evidence Collection: IEvidenceCollector
-`IEvidenceCollector` hooks into `TestRunner` and `StepExecutor`. It is optional (`null` by default). Implementations must handle exceptions gracefully — all calls from production code are wrapped in `try/catch` or `SafeCall()`.
+### エビデンス収集: IEvidenceCollector
+`IEvidenceCollector` は `TestRunner` と `StepExecutor` にフックされます。デフォルトは `null`（任意）。実装クラスは例外を graceful に処理してください — 本番コードからのすべての呼び出しは `try/catch` または `SafeCall()` でラップされています。
 
-The `ScreenshotCollector` is the current implementation; `IDbEvidenceProvider` is an interface stub for future DB result capture (Issue #8).
+現在の実装は `ScreenshotCollector`。`IDbEvidenceProvider` は将来の DB 結果取得向けインターフェーススタブです（Issue #8）。
 
-### Scenario Isolation
-After each scenario, `TestRunner.ResetToMainWindow()` automatically closes any non-main windows and returns focus to the main window. This ensures scenarios do not bleed into each other.
+### シナリオ分離
+各シナリオ終了後、`TestRunner.ResetToMainWindow()` がメイン以外のウィンドウを自動的に閉じてメインウィンドウにフォーカスを戻します。これによりシナリオ間の状態汚染を防ぎます。
 
 ---
 
-## Commit Message Convention
+## コミットメッセージ規約
 
 ```
-<type>: #<issue> Brief description in Japanese or English
+<type>: #<issue番号> 日本語または英語での簡潔な説明
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
-Types: `feat`, `fix`, `test`, `chore`, `docs`, `refactor`
+タイプ: `feat`, `fix`, `test`, `chore`, `docs`, `refactor`
 
-Examples:
+例:
 ```
 feat: #3 データCRUD画面の実装
 fix: #6 WinForms入力制御の実装
@@ -236,26 +236,26 @@ chore: add bin/obj to .gitignore
 
 ---
 
-## Open Issues (as of 2026-03-24)
+## オープンイシュー（2026-03-24 時点）
 
-| # | Title | Summary |
+| # | タイトル | 概要 |
 |---|---|---|
-| [#8](https://github.com/nak4mura/winforms_test/issues/8) | DB期待値確認 | Add DB query result assertion. Execute a SQL, compare result rows against expected values in JSON. `IDbEvidenceProvider` interface is already defined. |
-| [#10](https://github.com/nak4mura/winforms_test/issues/10) | コンボボックスのテスト入力対応 | Add `expandcollapse` action to `StepExecutor`; add a ComboBox screen to TestApp; add sample JSON in `tests/samples/`. `ControlInteractor.ExpandCollapse()` already exists. |
+| [#8](https://github.com/nak4mura/winforms_test/issues/8) | DB期待値確認 | DB クエリ結果のアサーションを追加。SQL を実行し結果行を JSON の期待値と比較する。`IDbEvidenceProvider` インターフェースは定義済み。 |
+| [#10](https://github.com/nak4mura/winforms_test/issues/10) | コンボボックスのテスト入力対応 | `StepExecutor` に `expandcollapse` アクションを追加。TestApp にコンボボックス画面を追加。`tests/samples/` にサンプル JSON を追加。`ControlInteractor.ExpandCollapse()` は実装済み。 |
 
 ---
 
-## Open Pull Requests (as of 2026-03-24)
+## オープン PR（2026-03-24 時点）
 
-| # | Title | Branch | Base |
+| # | タイトル | ブランチ | ベース |
 |---|---|---|---|
 | [#18](https://github.com/nak4mura/winforms_test/pull/18) | エビデンス作成機能の実装 | `feature/evidence-creation` | `develop` |
 
 ---
 
-## Platform Notes
+## プラットフォーム注意事項
 
-- This project **only runs on Windows**. UI Automation (`System.Windows.Automation`) and WinForms are Windows-only APIs.
-- The test runner launches the target application as a child process and controls it via COM-based UI Automation.
-- `ControlInteractor.Click()` uses `SetForegroundWindow` + `SendKeys.SendWait(" ")` rather than `InvokePattern.Invoke()` for controls with a native HWND, to avoid modal dialog deadlocks in UI Automation.
-- Screenshots in `ScreenshotCapture` use Win32 `GetWindowRect` + `Graphics.CopyFromScreen` (GDI), not `PrintWindow`, so the window must be visible and not minimized.
+- このプロジェクトは **Windows 専用**です。UI Automation (`System.Windows.Automation`) および WinForms は Windows 専用 API です。
+- テストランナーは対象アプリを子プロセスとして起動し、COM ベースの UI Automation で制御します。
+- `ControlInteractor.Click()` は `InvokePattern.Invoke()` の代わりに `SetForegroundWindow` + `SendKeys.SendWait(" ")` を使用します。これはネイティブ HWND を持つコントロールでモーダルダイアログのデッドロックを避けるためです。
+- `ScreenshotCapture` のスクリーンショットは `PrintWindow` ではなく Win32 の `GetWindowRect` + `Graphics.CopyFromScreen`（GDI）を使用します。そのためウィンドウが表示されており最小化されていない必要があります。
