@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Windows.Automation;
 using System.Windows.Forms;
 
@@ -7,6 +8,20 @@ public class ControlInteractor
 {
     public void Click(AutomationElement element)
     {
+        // For controls with a native window handle (buttons, etc.), use focus + Space key.
+        // This avoids InvokePattern.Invoke() which blocks on modal dialogs and causes
+        // all subsequent UIAutomation COM calls to hang (including EnumWindows + FromHandle).
+        var hwnd = new IntPtr(element.Current.NativeWindowHandle);
+        if (hwnd != IntPtr.Zero)
+        {
+            SetForegroundWindow(hwnd);
+            element.SetFocus();
+            Thread.Sleep(50);
+            SendKeys.SendWait(" ");
+            return;
+        }
+
+        // For controls without a native handle (e.g., ToolStripMenuItems), use InvokePattern
         if (element.TryGetCurrentPattern(InvokePattern.Pattern, out var pattern))
         {
             ((InvokePattern)pattern).Invoke();
@@ -104,9 +119,12 @@ public class ControlInteractor
     private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
     private const uint MOUSEEVENTF_LEFTUP = 0x0004;
 
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    [DllImport("user32.dll")]
     private static extern bool SetCursorPos(int x, int y);
 
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    [DllImport("user32.dll")]
     private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
 }

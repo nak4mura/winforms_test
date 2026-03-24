@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Automation;
 using WinFormsE2E.Core;
@@ -10,24 +12,21 @@ public class WindowTracker
     {
         return WaitStrategy.WaitUntil(() =>
         {
-            var windows = AutomationElement.RootElement.FindAll(
-                TreeScope.Children,
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
+            // Use Win32 EnumWindows to find windows. This avoids UIAutomation's FindAll
+            // which can hang when there's a pending InvokePattern.Invoke() call
+            // (e.g., when a button opens a modal dialog).
+            var targetHwnd = FindWindowByTitle(titlePattern);
+            if (targetHwnd == IntPtr.Zero)
+                return null;
 
-            foreach (AutomationElement window in windows)
+            try
             {
-                try
-                {
-                    var name = window.Current.Name;
-                    if (name != null && MatchesTitle(name, titlePattern))
-                        return window;
-                }
-                catch (ElementNotAvailableException)
-                {
-                    // Window disappeared during enumeration
-                }
+                return AutomationElement.FromHandle(targetHwnd);
             }
-            return null;
+            catch
+            {
+                return null;
+            }
         }, timeoutMs, retryIntervalMs);
     }
 
@@ -37,6 +36,13 @@ public class WindowTracker
         {
             try
             {
+                var hwnd = new IntPtr(window.Current.NativeWindowHandle);
+                if (hwnd != IntPtr.Zero)
+                {
+                    var title = GetWindowTitle(hwnd);
+                    return title != null && MatchesTitle(title, expectedTitle);
+                }
+
                 var name = window.Current.Name;
                 return name != null && MatchesTitle(name, expectedTitle);
             }
@@ -77,10 +83,50 @@ public class WindowTracker
             ((WindowPattern)pattern).Close();
             return;
         }
-        throw new InvalidOperationException("Window does not support WindowPattern.");
+
+        // Fallback: use Win32 WM_CLOSE
+        var hwnd = new IntPtr(window.Current.NativeWindowHandle);
+        if (hwnd != IntPtr.Zero)
+        {
+            PostMessage(hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            return;
+        }
+
+        throw new InvalidOperationException("Window does not support WindowPattern and has no native handle.");
     }
 
-    private static bool MatchesTitle(string actual, string pattern)
+    private IntPtr FindWindowByTitle(string titlePattern)
+    {
+        IntPtr found = IntPtr.Zero;
+
+        EnumWindows((hwnd, _) =>
+        {
+            if (!IsWindowVisible(hwnd))
+                return true; // continue enumeration
+
+            var title = GetWindowTitle(hwnd);
+            if (title != null && MatchesTitle(title, titlePattern))
+            {
+                found = hwnd;
+                return false; // stop enumeration
+            }
+            return true;
+        }, IntPtr.Zero);
+
+        return found;
+    }
+
+    private static string? GetWindowTitle(IntPtr hwnd)
+    {
+        int length = GetWindowTextLength(hwnd);
+        if (length == 0) return null;
+
+        var sb = new StringBuilder(length + 1);
+        GetWindowText(hwnd, sb, sb.Capacity);
+        return sb.ToString();
+    }
+
+    internal static bool MatchesTitle(string actual, string pattern)
     {
         if (pattern == actual) return true;
 
@@ -92,4 +138,23 @@ public class WindowTracker
 
         return actual.Contains(pattern, StringComparison.OrdinalIgnoreCase);
     }
+
+    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+    private const uint WM_CLOSE = 0x0010;
+
+    [DllImport("user32.dll")]
+    private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowTextLength(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern bool IsWindowVisible(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 }
