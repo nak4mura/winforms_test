@@ -10,18 +10,27 @@ public class Program
     {
         if (args.Length == 0)
         {
-            Console.Error.WriteLine("Usage: WinFormsE2E <test-suite.json> [--verbose] [--output <results.json>]");
+            Console.Error.WriteLine("Usage: WinFormsE2E <test-suite.json> [--verbose] [--output <results.json>] [--evidence] [--evidence-output <dir>]");
             return 2;
         }
 
         var jsonPath = args[0];
         var verbose = args.Contains("--verbose");
         string? outputPath = null;
+        var evidenceEnabled = args.Contains("--evidence");
+        string? evidenceOutputDir = null;
 
         var outputIndex = Array.IndexOf(args, "--output");
         if (outputIndex >= 0 && outputIndex + 1 < args.Length)
         {
             outputPath = args[outputIndex + 1];
+        }
+
+        var evidenceOutputIndex = Array.IndexOf(args, "--evidence-output");
+        if (evidenceOutputIndex >= 0 && evidenceOutputIndex + 1 < args.Length)
+        {
+            evidenceOutputDir = args[evidenceOutputIndex + 1];
+            evidenceEnabled = true;
         }
 
         if (!System.IO.File.Exists(jsonPath))
@@ -46,13 +55,20 @@ public class Program
                 return 2;
             }
 
+            if (evidenceEnabled && evidenceOutputDir == null)
+            {
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                var suiteName = suite.Suite?.Replace(" ", "_") ?? "unknown";
+                evidenceOutputDir = System.IO.Path.Combine("evidence", $"{timestamp}_{suiteName}");
+            }
+
             var reporters = new List<IResultReporter> { new ConsoleReporter(verbose) };
             if (outputPath != null)
             {
                 reporters.Add(new JsonReporter(outputPath));
             }
 
-            var runner = new TestRunner(suite, reporters);
+            var runner = new TestRunner(suite, reporters, evidenceEnabled, evidenceOutputDir);
             var result = runner.Run();
 
             return result.Passed ? 0 : 1;

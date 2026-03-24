@@ -11,11 +11,15 @@ public class TestRunner
     private readonly List<IResultReporter> _reporters;
     private readonly StepExecutor _stepExecutor = new();
     private readonly WindowTracker _windowTracker = new();
+    private readonly bool _evidenceEnabled;
+    private readonly string? _evidenceOutputDir;
 
-    public TestRunner(TestSuite suite, List<IResultReporter> reporters)
+    public TestRunner(TestSuite suite, List<IResultReporter> reporters, bool evidenceEnabled = false, string? evidenceOutputDir = null)
     {
         _suite = suite;
         _reporters = reporters;
+        _evidenceEnabled = evidenceEnabled;
+        _evidenceOutputDir = evidenceOutputDir;
     }
 
     public SuiteResult Run()
