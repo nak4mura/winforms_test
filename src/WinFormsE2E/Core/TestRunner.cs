@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using WinFormsE2E.Automation;
+using WinFormsE2E.Database;
 using WinFormsE2E.Evidence;
 using WinFormsE2E.Models;
 using WinFormsE2E.Reporting;
@@ -31,8 +32,16 @@ public class TestRunner
         var context = new TestContext { Settings = _suite.Settings };
         Process? process = null;
 
+        DbConnectionManager? dbManager = null;
+
         try
         {
+            if (_suite.Database != null)
+            {
+                dbManager = new DbConnectionManager(_suite.Database);
+                context.DbManager = dbManager;
+            }
+
             process = LaunchApplication(_suite.Application);
             context.AppProcess = process;
 
@@ -61,6 +70,7 @@ public class TestRunner
         finally
         {
             TryCloseProcess(process);
+            dbManager?.Dispose();
             suiteStopwatch.Stop();
             suiteResult.ElapsedMs = suiteStopwatch.ElapsedMilliseconds;
         }
