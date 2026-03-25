@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Windows.Automation;
 using WinFormsE2E.Assertions;
 using WinFormsE2E.Automation;
+using WinFormsE2E.Evidence;
 using WinFormsE2E.Models;
 
 namespace WinFormsE2E.Core;
@@ -13,11 +14,14 @@ public class StepExecutor
     private readonly WindowTracker _windowTracker = new();
     private readonly AssertionEngine _assertionEngine = new();
 
-    public StepResult Execute(TestStep step, TestContext context)
+    public StepResult Execute(TestStep step, TestContext context, IEvidenceCollector? collector = null)
     {
         var sw = Stopwatch.StartNew();
+        var execContext = BuildExecutionContext(step, context);
         try
         {
+            SafeCall(() => collector?.OnBeforeStep(execContext));
+
             var result = step.Action.ToLowerInvariant() switch
             {
                 "click" => ExecuteClick(step, context),
@@ -38,13 +42,45 @@ public class StepExecutor
             };
 
             result.ElapsedMs = sw.ElapsedMilliseconds;
+            SafeCall(() => collector?.OnAfterStep(BuildExecutionContext(step, context)));
             return result;
         }
         catch (Exception ex)
         {
             sw.Stop();
+            SafeCall(() => collector?.OnAfterStep(BuildExecutionContext(step, context)));
             return StepResult.Err(step.DisplayName, ex.Message, sw.ElapsedMilliseconds);
         }
+    }
+
+    private static StepExecutionContext BuildExecutionContext(TestStep step, TestContext context)
+    {
+        var hwnd = IntPtr.Zero;
+        string? title = null;
+
+        if (context.CurrentWindow != null)
+        {
+            try
+            {
+                hwnd = new IntPtr(context.CurrentWindow.Current.NativeWindowHandle);
+                title = context.CurrentWindow.Current.Name;
+            }
+            catch { }
+        }
+
+        return new StepExecutionContext
+        {
+            WindowHandle = hwnd,
+            WindowTitle = title,
+            StepDescription = step.DisplayName,
+            Action = step.Action
+        };
+    }
+
+    private static void SafeCall(Action action)
+    {
+        try { action(); }
+        catch { }
     }
 
     private StepResult ExecuteClick(TestStep step, TestContext context)
