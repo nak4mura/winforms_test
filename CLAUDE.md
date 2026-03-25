@@ -163,9 +163,6 @@ dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evide
 | `wait` | `ms` ミリ秒だけ実行を一時停止 |
 | `inspect` | UI Automation ツリーをコンソールにダンプ（デバッグ用。`ms` を最大深度として使用） |
 
-**実装予定（未対応）:**
-- `expandcollapse` — コンボボックスのドロップダウンを開く／閉じる（Issue #10）
-
 ### アサート `expect` オブジェクト
 ```json
 {
@@ -174,7 +171,7 @@ dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evide
   "value": "期待するテキスト"
 }
 ```
-演算子: `equals`, `contains`, `startsWith`, `endsWith`, `notEquals`
+operator: `equals`, `contains`, `startsWith`, `endsWith`, `notEquals`
 
 ---
 
@@ -190,12 +187,6 @@ _btnAdd = new Button { Name = "BtnAdd", Text = "追加(&A)", ... };
 // 悪い例 — Name 未設定。Text でしかターゲット指定できない
 _btnAdd = new Button { Text = "追加(&A)", ... };
 ```
-
-命名規則:
-- ボタン: `BtnXxx`（例: `BtnAdd`, `BtnUpdate`, `BtnCrudBack`）
-- テキストボックス: `TxtXxx`（例: `TxtItemName`, `TxtItemDescription`）
-- DataGridView: `XxxDataGrid`（例: `CrudDataGrid`）
-- フォーム: `XxxForm`（例: `CrudForm`, `MainForm`）
 
 ### StepExecutor: 新しいアクションの追加方法
 アクションは `StepExecutor.Execute()` 内の `switch` 式でディスパッチされます。新しいアクションを追加する手順:
@@ -213,45 +204,6 @@ _btnAdd = new Button { Text = "追加(&A)", ... };
 
 ### シナリオ分離
 各シナリオ終了後、`TestRunner.ResetToMainWindow()` がメイン以外のウィンドウを自動的に閉じてメインウィンドウにフォーカスを戻します。これによりシナリオ間の状態汚染を防ぎます。
-
----
-
-## コミットメッセージ規約
-
-```
-<type>: #<issue番号> 日本語または英語での簡潔な説明
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-```
-
-タイプ: `feat`, `fix`, `test`, `chore`, `docs`, `refactor`
-
-例:
-```
-feat: #3 データCRUD画面の実装
-fix: #6 WinForms入力制御の実装
-test: TestApp用E2Eテストケースを作成
-chore: add bin/obj to .gitignore
-```
-
----
-
-## オープンイシュー（2026-03-24 時点）
-
-| # | タイトル | 概要 |
-|---|---|---|
-| [#8](https://github.com/nak4mura/winforms_test/issues/8) | DB期待値確認 | DB クエリ結果のアサーションを追加。SQL を実行し結果行を JSON の期待値と比較する。`IDbEvidenceProvider` インターフェースは定義済み。 |
-| [#10](https://github.com/nak4mura/winforms_test/issues/10) | コンボボックスのテスト入力対応 | `StepExecutor` に `expandcollapse` アクションを追加。TestApp にコンボボックス画面を追加。`tests/samples/` にサンプル JSON を追加。`ControlInteractor.ExpandCollapse()` は実装済み。 |
-
----
-
-## オープン PR（2026-03-24 時点）
-
-| # | タイトル | ブランチ | ベース |
-|---|---|---|---|
-| [#18](https://github.com/nak4mura/winforms_test/pull/18) | エビデンス作成機能の実装 | `feature/evidence-creation` | `develop` |
-
----
 
 ## プラットフォーム注意事項
 
