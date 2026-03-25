@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using System.Windows.Automation;
 using WinFormsE2E.Assertions;
 using WinFormsE2E.Automation;
@@ -38,6 +39,7 @@ public class StepExecutor
                 "closewindow" => ExecuteCloseWindow(step, context),
                 "wait" => ExecuteWait(step),
                 "inspect" => ExecuteInspect(step, context),
+                "assertdb" => ExecuteAssertDb(step, context, collector),
                 _ => throw new InvalidOperationException($"Unknown action: {step.Action}")
             };
 
@@ -274,6 +276,131 @@ public class StepExecutor
             }
         }
         catch (ElementNotAvailableException) { }
+    }
+
+    private StepResult ExecuteAssertDb(TestStep step, TestContext context, IEvidenceCollector? collector)
+    {
+        if (context.DbManager == null)
+            throw new InvalidOperationException("'assertDb' requires 'database' configuration in the test suite.");
+        if (step.Query == null)
+            throw new InvalidOperationException("'assertDb' action requires 'query' field.");
+        if (step.ExpectedRows == null)
+            throw new InvalidOperationException("'assertDb' action requires 'expectedRows' field.");
+
+        var result = context.DbManager.ExecuteQuery(step.Query.ConnectionName, step.Query.Sql);
+
+        int? failedRowIdx = null;
+        int? failedColIdx = null;
+        string? failMessage = null;
+
+        if (result.Rows.Count != step.ExpectedRows.Count)
+        {
+            failMessage = $"行数が一致しません。期待: {step.ExpectedRows.Count} 行, 実際: {result.Rows.Count} 行";
+        }
+        else
+        {
+            for (int rowIdx = 0; rowIdx < step.ExpectedRows.Count; rowIdx++)
+            {
+                var expectedRow = step.ExpectedRows[rowIdx];
+                var actualRow = result.Rows[rowIdx];
+
+                var colCount = Math.Min(expectedRow.Count, actualRow.Count);
+                for (int colIdx = 0; colIdx < colCount; colIdx++)
+                {
+                    var expected = expectedRow[colIdx];
+                    var actual = actualRow[colIdx];
+                    var columnName = colIdx < result.Columns.Count ? result.Columns[colIdx] : $"Column{colIdx}";
+
+                    if (!CompareDbValues(expected, actual))
+                    {
+                        failedRowIdx = rowIdx;
+                        failedColIdx = colIdx;
+                        failMessage = $"行 {rowIdx + 1}, カラム '{columnName}': 期待値 = {FormatJsonElement(expected)}, 実際値 = {FormatActualValue(actual)}";
+                        break;
+                    }
+                }
+
+                if (failMessage != null) break;
+
+                if (expectedRow.Count != actualRow.Count)
+                {
+                    failedRowIdx = rowIdx;
+                    failMessage = $"行 {rowIdx + 1}: カラム数が一致しません。期待: {expectedRow.Count}, 実際: {actualRow.Count}";
+                    break;
+                }
+            }
+        }
+
+        // Attach DB evidence if collector is available
+        SafeCall(() =>
+        {
+            if (collector is ScreenshotCollector sc)
+            {
+                var attachment = new DbQueryAttachment(
+                    step.Description ?? "DB Query",
+                    step.Query.ConnectionName,
+                    step.Query.Sql,
+                    result,
+                    step.ExpectedRows,
+                    failedRowIdx,
+                    failedColIdx);
+                sc.AttachToCurrentStep(attachment);
+            }
+        });
+
+        if (failMessage != null)
+            return StepResult.Fail(step.DisplayName, failMessage, 0);
+
+        return StepResult.Pass(step.DisplayName, 0);
+    }
+
+    private static bool CompareDbValues(JsonElement expected, object? actual)
+    {
+        if (expected.ValueKind == JsonValueKind.Null)
+            return actual == null || actual == DBNull.Value;
+
+        if (actual == null || actual == DBNull.Value)
+            return false;
+
+        return expected.ValueKind switch
+        {
+            JsonValueKind.String => expected.GetString() == actual.ToString(),
+            JsonValueKind.Number => CompareNumeric(expected, actual),
+            JsonValueKind.True => actual is bool b1 && b1,
+            JsonValueKind.False => actual is bool b2 && !b2,
+            _ => expected.ToString() == actual.ToString()
+        };
+    }
+
+    private static bool CompareNumeric(JsonElement expected, object actual)
+    {
+        try
+        {
+            var expectedDecimal = expected.GetDecimal();
+            var actualDecimal = Convert.ToDecimal(actual);
+            return expectedDecimal == actualDecimal;
+        }
+        catch
+        {
+            return expected.ToString() == actual.ToString();
+        }
+    }
+
+    private static string FormatJsonElement(JsonElement element)
+    {
+        return element.ValueKind switch
+        {
+            JsonValueKind.Null => "null",
+            JsonValueKind.String => $"\"{element.GetString()}\"",
+            _ => element.ToString()
+        };
+    }
+
+    private static string FormatActualValue(object? value)
+    {
+        if (value == null || value == DBNull.Value) return "null";
+        if (value is string s) return $"\"{s}\"";
+        return value.ToString() ?? "null";
     }
 
     private AutomationElement FindElement(TestStep step, TestContext context)

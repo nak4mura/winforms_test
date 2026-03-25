@@ -49,6 +49,11 @@ public class ScreenshotCollector : IEvidenceCollector
         _currentStep = null;
     }
 
+    public void AttachToCurrentStep(IEvidenceAttachment attachment)
+    {
+        _currentStep?.Attachments.Add(attachment);
+    }
+
     public void OnScenarioEnd()
     {
         _currentScenario = null;

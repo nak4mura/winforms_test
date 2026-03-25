@@ -1,0 +1,56 @@
+{
+  "suite": "DB期待値確認テスト（サンプル）",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "database": {
+    "connections": {
+      "main": {
+        "provider": "sqlserver",
+        "connectionString": "Server=localhost;Database=TestDb;Trusted_Connection=true;TrustServerCertificate=true;"
+      }
+    }
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "CRUD操作後のDB確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "assertDb",
+          "description": "初期データが存在することを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT TOP 5 Id, Name FROM SampleTable ORDER BY Id"
+          },
+          "expectedRows": [
+            [1, "サンプルデータ1"],
+            [2, "サンプルデータ2"],
+            [3, "サンプルデータ3"]
+          ]
+        }
+      ]
+    }
+  ]
+}
