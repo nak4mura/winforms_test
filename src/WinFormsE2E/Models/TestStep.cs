@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace WinFormsE2E.Models;
@@ -33,6 +34,12 @@ public class TestStep
 
     [JsonPropertyName("ms")]
     public int? Ms { get; set; }
+
+    [JsonPropertyName("query")]
+    public DbQuery? Query { get; set; }
+
+    [JsonPropertyName("expectedRows")]
+    public List<List<JsonElement>>? ExpectedRows { get; set; }
 
     public string DisplayName => Description ?? $"{Action} {Target?.DisplayName ?? WindowTitle ?? ""}".Trim();
 }

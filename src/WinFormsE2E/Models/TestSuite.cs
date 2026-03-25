@@ -13,6 +13,9 @@ public class TestSuite
     [JsonPropertyName("settings")]
     public TestSettings Settings { get; set; } = new();
 
+    [JsonPropertyName("database")]
+    public DatabaseConfig? Database { get; set; }
+
     [JsonPropertyName("scenarios")]
     public List<TestScenario> Scenarios { get; set; } = new();
 }
