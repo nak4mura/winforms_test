@@ -39,7 +39,7 @@ public class StepExecutor
                 "closewindow" => ExecuteCloseWindow(step, context),
                 "wait" => ExecuteWait(step),
                 "inspect" => ExecuteInspect(step, context),
-                "assertdb" => ExecuteAssertDb(step, context),
+                "assertdb" => ExecuteAssertDb(step, context, collector),
                 _ => throw new InvalidOperationException($"Unknown action: {step.Action}")
             };
 
@@ -278,7 +278,7 @@ public class StepExecutor
         catch (ElementNotAvailableException) { }
     }
 
-    private StepResult ExecuteAssertDb(TestStep step, TestContext context)
+    private StepResult ExecuteAssertDb(TestStep step, TestContext context, IEvidenceCollector? collector)
     {
         if (context.DbManager == null)
             throw new InvalidOperationException("'assertDb' requires 'database' configuration in the test suite.");
@@ -289,37 +289,67 @@ public class StepExecutor
 
         var result = context.DbManager.ExecuteQuery(step.Query.ConnectionName, step.Query.Sql);
 
+        int? failedRowIdx = null;
+        int? failedColIdx = null;
+        string? failMessage = null;
+
         if (result.Rows.Count != step.ExpectedRows.Count)
         {
-            return StepResult.Fail(step.DisplayName,
-                $"行数が一致しません。期待: {step.ExpectedRows.Count} 行, 実際: {result.Rows.Count} 行", 0);
+            failMessage = $"行数が一致しません。期待: {step.ExpectedRows.Count} 行, 実際: {result.Rows.Count} 行";
         }
-
-        for (int rowIdx = 0; rowIdx < step.ExpectedRows.Count; rowIdx++)
+        else
         {
-            var expectedRow = step.ExpectedRows[rowIdx];
-            var actualRow = result.Rows[rowIdx];
-
-            var colCount = Math.Min(expectedRow.Count, actualRow.Count);
-            for (int colIdx = 0; colIdx < colCount; colIdx++)
+            for (int rowIdx = 0; rowIdx < step.ExpectedRows.Count; rowIdx++)
             {
-                var expected = expectedRow[colIdx];
-                var actual = actualRow[colIdx];
-                var columnName = colIdx < result.Columns.Count ? result.Columns[colIdx] : $"Column{colIdx}";
+                var expectedRow = step.ExpectedRows[rowIdx];
+                var actualRow = result.Rows[rowIdx];
 
-                if (!CompareDbValues(expected, actual))
+                var colCount = Math.Min(expectedRow.Count, actualRow.Count);
+                for (int colIdx = 0; colIdx < colCount; colIdx++)
                 {
-                    return StepResult.Fail(step.DisplayName,
-                        $"行 {rowIdx + 1}, カラム '{columnName}': 期待値 = {FormatJsonElement(expected)}, 実際値 = {FormatActualValue(actual)}", 0);
+                    var expected = expectedRow[colIdx];
+                    var actual = actualRow[colIdx];
+                    var columnName = colIdx < result.Columns.Count ? result.Columns[colIdx] : $"Column{colIdx}";
+
+                    if (!CompareDbValues(expected, actual))
+                    {
+                        failedRowIdx = rowIdx;
+                        failedColIdx = colIdx;
+                        failMessage = $"行 {rowIdx + 1}, カラム '{columnName}': 期待値 = {FormatJsonElement(expected)}, 実際値 = {FormatActualValue(actual)}";
+                        break;
+                    }
+                }
+
+                if (failMessage != null) break;
+
+                if (expectedRow.Count != actualRow.Count)
+                {
+                    failedRowIdx = rowIdx;
+                    failMessage = $"行 {rowIdx + 1}: カラム数が一致しません。期待: {expectedRow.Count}, 実際: {actualRow.Count}";
+                    break;
                 }
             }
-
-            if (expectedRow.Count != actualRow.Count)
-            {
-                return StepResult.Fail(step.DisplayName,
-                    $"行 {rowIdx + 1}: カラム数が一致しません。期待: {expectedRow.Count}, 実際: {actualRow.Count}", 0);
-            }
         }
+
+        // Attach DB evidence if collector is available
+        SafeCall(() =>
+        {
+            if (collector is ScreenshotCollector sc)
+            {
+                var attachment = new DbQueryAttachment(
+                    step.Description ?? "DB Query",
+                    step.Query.ConnectionName,
+                    step.Query.Sql,
+                    result,
+                    step.ExpectedRows,
+                    failedRowIdx,
+                    failedColIdx);
+                sc.AttachToCurrentStep(attachment);
+            }
+        });
+
+        if (failMessage != null)
+            return StepResult.Fail(step.DisplayName, failMessage, 0);
 
         return StepResult.Pass(step.DisplayName, 0);
     }

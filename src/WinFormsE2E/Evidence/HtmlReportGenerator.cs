@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using WinFormsE2E.Models;
 
 namespace WinFormsE2E.Evidence;
@@ -97,6 +98,15 @@ public class HtmlReportGenerator
 
                 sb.AppendLine("</div>"); // screenshots
 
+                // Render DB query attachments
+                foreach (var attachment in stepEvidence.Attachments)
+                {
+                    if (attachment is DbQueryAttachment dbAttachment)
+                    {
+                        RenderDbQueryTable(sb, dbAttachment);
+                    }
+                }
+
                 if (stepResult?.Message != null)
                     sb.AppendLine($"<div class=\"step-message\">{Escape(stepResult.Message)}</div>");
 
@@ -133,6 +143,84 @@ public class HtmlReportGenerator
         {
             return absolutePath.Replace('\\', '/');
         }
+    }
+
+    private static void RenderDbQueryTable(StringBuilder sb, DbQueryAttachment attachment)
+    {
+        sb.AppendLine("<div class=\"db-evidence\">");
+        sb.AppendLine($"<div class=\"db-header\">DB確認: {Escape(attachment.Name)}</div>");
+        sb.AppendLine($"<div class=\"db-sql\"><code>{Escape(attachment.Sql)}</code></div>");
+        sb.AppendLine($"<div class=\"db-connection\">接続: {Escape(attachment.ConnectionName)}</div>");
+
+        if (attachment.Columns.Count == 0)
+        {
+            sb.AppendLine("<p>結果なし</p>");
+            sb.AppendLine("</div>");
+            return;
+        }
+
+        sb.AppendLine("<table class=\"db-table\">");
+
+        // Header row
+        sb.AppendLine("<thead><tr>");
+        sb.AppendLine("<th>#</th>");
+        foreach (var col in attachment.Columns)
+        {
+            sb.AppendLine($"<th>{Escape(col)}</th>");
+        }
+        if (attachment.ExpectedRows != null)
+        {
+            sb.AppendLine("<th>期待値</th>");
+        }
+        sb.AppendLine("</tr></thead>");
+
+        // Data rows
+        sb.AppendLine("<tbody>");
+        for (int rowIdx = 0; rowIdx < attachment.Rows.Count; rowIdx++)
+        {
+            var isFailedRow = attachment.FailedRowIndex == rowIdx;
+            var rowClass = isFailedRow ? " class=\"db-row-fail\"" : "";
+            sb.AppendLine($"<tr{rowClass}>");
+            sb.AppendLine($"<td>{rowIdx + 1}</td>");
+
+            var row = attachment.Rows[rowIdx];
+            for (int colIdx = 0; colIdx < row.Count; colIdx++)
+            {
+                var isFailedCell = isFailedRow && attachment.FailedColIndex == colIdx;
+                var cellClass = isFailedCell ? " class=\"db-cell-fail\"" : "";
+                var value = row[colIdx];
+                var display = value == null || value == DBNull.Value ? "<em>NULL</em>" : Escape(value.ToString() ?? "");
+                sb.AppendLine($"<td{cellClass}>{display}</td>");
+            }
+
+            // Show expected values if available
+            if (attachment.ExpectedRows != null && rowIdx < attachment.ExpectedRows.Count)
+            {
+                var expectedRow = attachment.ExpectedRows[rowIdx];
+                var expectedDisplay = string.Join(", ", expectedRow.Select(e => FormatJsonElement(e)));
+                sb.AppendLine($"<td>{Escape(expectedDisplay)}</td>");
+            }
+            else if (attachment.ExpectedRows != null)
+            {
+                sb.AppendLine("<td>-</td>");
+            }
+
+            sb.AppendLine("</tr>");
+        }
+        sb.AppendLine("</tbody>");
+
+        sb.AppendLine("</table>");
+        sb.AppendLine("</div>");
+    }
+
+    private static string FormatJsonElement(JsonElement element)
+    {
+        return element.ValueKind switch
+        {
+            JsonValueKind.Null => "NULL",
+            JsonValueKind.String => element.GetString() ?? "",
+            _ => element.ToString()
+        };
     }
 
     private static string GetOutcomeClass(StepOutcome? outcome) => outcome switch
@@ -179,6 +267,17 @@ public class HtmlReportGenerator
         .screenshot img { width: 100%; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
         .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; cursor: pointer; justify-content: center; align-items: center; }
         .lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; }
+        .db-evidence { margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #dee2e6; }
+        .db-header { font-weight: bold; margin-bottom: 6px; color: #1565c0; }
+        .db-sql { margin-bottom: 6px; }
+        .db-sql code { background: #e8eaf6; padding: 4px 8px; border-radius: 3px; font-size: 0.85em; }
+        .db-connection { font-size: 0.8em; color: #888; margin-bottom: 8px; }
+        .db-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+        .db-table th { background: #e3f2fd; padding: 6px 10px; border: 1px solid #bbdefb; text-align: left; }
+        .db-table td { padding: 6px 10px; border: 1px solid #e0e0e0; }
+        .db-table tbody tr:nth-child(even) { background: #fafafa; }
+        .db-row-fail { background: #ffebee !important; }
+        .db-cell-fail { background: #ffcdd2 !important; font-weight: bold; color: #c62828; }
         """;
 
     private static string GetScript() => """
