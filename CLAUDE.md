@@ -44,6 +44,9 @@ winforms_test/
 │   │   │   └── WindowTracker.cs      # ウィンドウの検索と切り替え
 │   │   ├── Assertions/
 │   │   │   └── AssertionEngine.cs    # assert/assertWindow ステップの評価
+│   │   ├── Database/
+│   │   │   ├── DbConnectionManager.cs  # DB接続管理・クエリ実行
+│   │   │   └── DbQueryResult.cs         # クエリ結果モデル
 │   │   ├── Models/                   # TestSuite, TestScenario, TestStep, StepResult 等
 │   │   ├── Reporting/
 │   │   │   ├── ConsoleReporter.cs
@@ -52,7 +55,9 @@ winforms_test/
 │   │   └── Evidence/                 # スクリーンショット取得・エビデンス収集
 │   │       ├── IEvidenceCollector.cs
 │   │       ├── IEvidenceAttachment.cs
-│   │       ├── IDbEvidenceProvider.cs  # 将来の DB エビデンス用インターフェース
+│   │       ├── IDbEvidenceProvider.cs  # DB エビデンス用インターフェース
+│   │       ├── DbEvidenceProvider.cs   # IDbEvidenceProvider の実装
+│   │       ├── DbQueryAttachment.cs    # DB クエリ結果のエビデンス添付データ
 │   │       ├── ScreenshotCollector.cs  # IEvidenceCollector の実装
 │   │       ├── ScreenshotCapture.cs    # GDI による Win32 ウィンドウスクリーンショット
 │   │       ├── HtmlReportGenerator.cs  # report.html の生成
@@ -72,7 +77,8 @@ winforms_test/
 │       ├── 02_crud.json            # CRUD 操作テスト
 │       ├── 03_message.json         # MessageBox 条件分岐テスト
 │       ├── 04_functionkey.json     # ファンクションキーテスト
-│       └── 05_input_control.json   # 入力制御テスト
+│       ├── 05_input_control.json   # 入力制御テスト
+│       └── 06_db_assertion.json   # DB期待値確認テスト（サンプル）
 └── README.md
 ```
 
@@ -122,6 +128,14 @@ dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evide
     "windowTitle": "テストアプリケーション",
     "startupWaitMs": 3000
   },
+  "database": {
+    "connections": {
+      "main": {
+        "provider": "sqlserver",
+        "connectionString": "Server=localhost;Database=TestDb;Trusted_Connection=true;TrustServerCertificate=true;"
+      }
+    }
+  },
   "settings": {
     "defaultTimeoutMs": 5000,
     "retryIntervalMs": 200
@@ -162,6 +176,7 @@ dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evide
 | `closeWindow` | 現在のウィンドウを閉じる |
 | `wait` | `ms` ミリ秒だけ実行を一時停止 |
 | `inspect` | UI Automation ツリーをコンソールにダンプ（デバッグ用。`ms` を最大深度として使用） |
+| `assertDb` | DB クエリを実行し、結果を `expectedRows` と照合（`database` 設定が必要） |
 
 ### アサート `expect` オブジェクト
 ```json
@@ -172,6 +187,31 @@ dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evide
 }
 ```
 operator: `equals`, `contains`, `startsWith`, `endsWith`, `notEquals`
+
+### DB アサーション `assertDb` ステップ
+
+`assertDb` アクションを使用するには、テストスイート JSON のトップレベルに `database` セクションが必要です。
+
+```json
+{
+  "action": "assertDb",
+  "description": "ユーザーが登録されていることを確認",
+  "query": {
+    "connectionName": "main",
+    "sql": "SELECT Id, Name, Email FROM Users WHERE Id = 1"
+  },
+  "expectedRows": [
+    [1, "田中太郎", "tanaka@example.com"]
+  ]
+}
+```
+
+- `query.connectionName`: `database.connections` で定義した接続名
+- `query.sql`: 実行する SELECT 文
+- `expectedRows`: 期待する結果行の配列。各行はカラム値の配列
+- 値の型: 文字列、数値、`null` に対応。型変換を含む柔軟な比較を実施
+- サポートプロバイダー: `sqlserver`（`mssql` も可）
+- エビデンスが有効な場合、クエリ結果は HTML レポートにテーブル表示され、失敗セルがハイライトされます
 
 ---
 
@@ -200,7 +240,7 @@ _btnAdd = new Button { Text = "追加(&A)", ... };
 ### エビデンス収集: IEvidenceCollector
 `IEvidenceCollector` は `TestRunner` と `StepExecutor` にフックされます。デフォルトは `null`（任意）。実装クラスは例外を graceful に処理してください — 本番コードからのすべての呼び出しは `try/catch` または `SafeCall()` でラップされています。
 
-現在の実装は `ScreenshotCollector`。`IDbEvidenceProvider` は将来の DB 結果取得向けインターフェーススタブです（Issue #8）。
+現在の実装は `ScreenshotCollector`（スクリーンショット）と `DbEvidenceProvider`（DB クエリ結果）です。`assertDb` ステップ実行時、クエリ結果が `DbQueryAttachment` としてエビデンスに添付され、HTML レポートにテーブル表示されます。
 
 ### シナリオ分離
 各シナリオ終了後、`TestRunner.ResetToMainWindow()` がメイン以外のウィンドウを自動的に閉じてメインウィンドウにフォーカスを戻します。これによりシナリオ間の状態汚染を防ぎます。
