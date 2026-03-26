@@ -1,0 +1,191 @@
+{
+  "suite": "TestApp コンボボックス操作テスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "ドロップダウンの開閉",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "コンボボックス(O)" },
+          "description": "コンボボックスメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "コンボボックス",
+          "description": "コンボボックス画面が表示されるまで待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "expand",
+          "description": "カテゴリコンボボックスを展開"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "展開後に待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "collapse",
+          "description": "カテゴリコンボボックスを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "閉じた後に待機"
+        }
+      ]
+    },
+    {
+      "name": "コンボボックスの項目選択",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "コンボボックス(O)" },
+          "description": "コンボボックスメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "コンボボックス",
+          "description": "コンボボックス画面が表示されるまで待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "expand",
+          "description": "カテゴリコンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "automationId": "CmbCategory" },
+          "value": "飲料",
+          "description": "「飲料」を選択"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "選択後に待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "collapse",
+          "description": "ドロップダウンを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "閉じた後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblSelectedInfo" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "飲料"
+          },
+          "description": "選択結果ラベルに「飲料」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "連動コンボボックスの動作確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "コンボボックス(O)" },
+          "description": "コンボボックスメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "コンボボックス",
+          "description": "コンボボックス画面が表示されるまで待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "expand",
+          "description": "カテゴリコンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "automationId": "CmbCategory" },
+          "value": "食品",
+          "description": "カテゴリ「食品」を選択"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "collapse",
+          "description": "カテゴリドロップダウンを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "連動更新を待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbSubCategory" },
+          "value": "expand",
+          "description": "サブカテゴリコンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "automationId": "CmbSubCategory" },
+          "value": "野菜",
+          "description": "サブカテゴリ「野菜」を選択"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbSubCategory" },
+          "value": "collapse",
+          "description": "サブカテゴリドロップダウンを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "選択後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblSelectedInfo" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "野菜"
+          },
+          "description": "選択結果ラベルに「野菜」が表示されていることを確認"
+        }
+      ]
+    }
+  ]
+}
