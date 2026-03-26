@@ -40,6 +40,7 @@ public class StepExecutor
                 "wait" => ExecuteWait(step),
                 "inspect" => ExecuteInspect(step, context),
                 "assertdb" => ExecuteAssertDb(step, context, collector),
+                "executedb" => ExecuteExecuteDb(step, context),
                 _ => throw new InvalidOperationException($"Unknown action: {step.Action}")
             };
 
@@ -276,6 +277,17 @@ public class StepExecutor
             }
         }
         catch (ElementNotAvailableException) { }
+    }
+
+    private StepResult ExecuteExecuteDb(TestStep step, TestContext context)
+    {
+        if (context.DbManager == null)
+            throw new InvalidOperationException("'executeDb' requires 'database' configuration in the test suite.");
+        if (step.Query == null)
+            throw new InvalidOperationException("'executeDb' action requires 'query' field.");
+
+        var affected = context.DbManager.ExecuteNonQuery(step.Query.ConnectionName, step.Query.Sql);
+        return StepResult.Pass(step.DisplayName, 0);
     }
 
     private StepResult ExecuteAssertDb(TestStep step, TestContext context, IEvidenceCollector? collector)

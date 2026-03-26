@@ -15,6 +15,14 @@ public class DbConnectionManager : IDisposable
         _connectionInfos = config.Connections;
     }
 
+    public int ExecuteNonQuery(string connectionName, string sql)
+    {
+        var connection = GetOrCreateConnection(connectionName);
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        return command.ExecuteNonQuery();
+    }
+
     public DbQueryResult ExecuteQuery(string connectionName, string sql)
     {
         var connection = GetOrCreateConnection(connectionName);
