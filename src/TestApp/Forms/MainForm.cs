@@ -20,6 +20,7 @@ public class MainForm : Form
         menuScreens.DropDownItems.Add(new ToolStripMenuItem("ファンクションキー(&F)", null, (s, e) => OpenForm<FunctionKeyForm>()) { Name = "MenuFunctionKey" });
         menuScreens.DropDownItems.Add(new ToolStripMenuItem("入力制御(&I)", null, (s, e) => OpenForm<InputControlForm>()) { Name = "MenuInputControl" });
         menuScreens.DropDownItems.Add(new ToolStripMenuItem("データCRUD DB(&B)", null, (s, e) => OpenForm<DbCrudForm>()) { Name = "MenuDbCrud" });
+        menuScreens.DropDownItems.Add(new ToolStripMenuItem("コンボボックス(&O)", null, (s, e) => OpenForm<ComboBoxForm>()) { Name = "MenuComboBox" });
         _menuStrip.Items.Add(menuScreens);
 
         _statusStrip = new StatusStrip { Name = "MainStatusStrip" };

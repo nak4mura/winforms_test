@@ -41,6 +41,7 @@ public class StepExecutor
                 "inspect" => ExecuteInspect(step, context),
                 "assertdb" => ExecuteAssertDb(step, context, collector),
                 "executedb" => ExecuteExecuteDb(step, context),
+                "expandcollapse" => ExecuteExpandCollapse(step, context),
                 _ => throw new InvalidOperationException($"Unknown action: {step.Action}")
             };
 
@@ -144,6 +145,14 @@ public class StepExecutor
     {
         var element = FindElement(step, context);
         _interactor.Toggle(element);
+        return StepResult.Pass(step.DisplayName, 0);
+    }
+
+    private StepResult ExecuteExpandCollapse(TestStep step, TestContext context)
+    {
+        var element = FindElement(step, context);
+        var expand = !string.Equals(step.Value, "collapse", StringComparison.OrdinalIgnoreCase);
+        _interactor.ExpandCollapse(element, expand);
         return StepResult.Pass(step.DisplayName, 0);
     }
 
