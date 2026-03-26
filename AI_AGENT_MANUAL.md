@@ -202,6 +202,8 @@ document, group, header, headeritem, pane, table, titlebar
 ```
 
 > **注意:** テキストフィールドをクリアしたい場合は `"text": ""` を指定してください。
+>
+> **補足:** CLAUDE.md や一部の既存テストJSONには `clear` アクションが記載されていますが、現在の `StepExecutor` には未実装です。テキストクリアには `type` + `"text": ""` を使用してください。
 
 #### sendkeys
 
