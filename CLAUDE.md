@@ -69,7 +69,8 @@ winforms_test/
 │           ├── CrudForm.cs         # DataGridView による CRUD 画面
 │           ├── MessageForm.cs      # MessageBox・ダイアログの条件分岐
 │           ├── FunctionKeyForm.cs  # F1/F5/F10/Esc キーバインド
-│           └── InputControlForm.cs # 入力制御（半角英数、IME、数値のみ等）
+│           ├── InputControlForm.cs # 入力制御（半角英数、IME、数値のみ等）
+│           └── DbCrudForm.cs      # DB バックエンドの CRUD 画面（LocalDB）
 ├── tests/
 │   └── testapp/                    # TestApp 用 JSON テストスイート
 │       ├── 00_inspect.json         # UI ツリーインスペクション（デバッグ用）
@@ -78,7 +79,7 @@ winforms_test/
 │       ├── 03_message.json         # MessageBox 条件分岐テスト
 │       ├── 04_functionkey.json     # ファンクションキーテスト
 │       ├── 05_input_control.json   # 入力制御テスト
-│       └── 06_db_assertion.json   # DB期待値確認テスト（サンプル）
+│       └── 06_db_assertion.json   # DB CRUD操作＋期待値確認テスト
 └── README.md
 ```
 
@@ -177,6 +178,7 @@ dotnet run --project src/WinFormsE2E -- tests/testapp/01_navigation.json --evide
 | `wait` | `ms` ミリ秒だけ実行を一時停止 |
 | `inspect` | UI Automation ツリーをコンソールにダンプ（デバッグ用。`ms` を最大深度として使用） |
 | `assertDb` | DB クエリを実行し、結果を `expectedRows` と照合（`database` 設定が必要） |
+| `executeDb` | DB に対して任意の SQL（DDL/DML）を実行（`database` 設定が必要） |
 
 ### アサート `expect` オブジェクト
 ```json
@@ -212,6 +214,24 @@ operator: `equals`, `contains`, `startsWith`, `endsWith`, `notEquals`
 - 値の型: 文字列、数値、`null` に対応。型変換を含む柔軟な比較を実施
 - サポートプロバイダー: `sqlserver`（`mssql` も可）
 - エビデンスが有効な場合、クエリ結果は HTML レポートにテーブル表示され、失敗セルがハイライトされます
+
+### DB 実行 `executeDb` ステップ
+
+`executeDb` アクションは任意の SQL（DDL/DML）を実行します。テーブルの作成、データの初期化、クリーンアップ等に使用します。
+
+```json
+{
+  "action": "executeDb",
+  "description": "テーブルを初期化",
+  "query": {
+    "connectionName": "main",
+    "sql": "DELETE FROM Items"
+  }
+}
+```
+
+- `query.connectionName`: `database.connections` で定義した接続名
+- `query.sql`: 実行する SQL 文（CREATE TABLE, INSERT, UPDATE, DELETE, DROP TABLE 等）
 
 ---
 
