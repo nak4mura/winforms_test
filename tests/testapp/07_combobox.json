@@ -89,6 +89,17 @@
           "description": "選択後に待機"
         },
         {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "collapse",
+          "description": "ドロップダウンを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "閉じた後に待機"
+        },
+        {
           "action": "assert",
           "target": { "automationId": "LblSelectedInfo" },
           "expect": {
@@ -131,6 +142,12 @@
           "description": "カテゴリ「食品」を選択"
         },
         {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbCategory" },
+          "value": "collapse",
+          "description": "カテゴリドロップダウンを閉じる"
+        },
+        {
           "action": "wait",
           "ms": 500,
           "description": "連動更新を待機"
@@ -146,6 +163,12 @@
           "target": { "automationId": "CmbSubCategory" },
           "value": "野菜",
           "description": "サブカテゴリ「野菜」を選択"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "automationId": "CmbSubCategory" },
+          "value": "collapse",
+          "description": "サブカテゴリドロップダウンを閉じる"
         },
         {
           "action": "wait",
