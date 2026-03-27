@@ -24,26 +24,18 @@
       "steps": [
         {
           "action": "executeDb",
-          "description": "Itemsテーブルを作成（存在しない場合）",
+          "description": "Itemsテーブルを削除（存在する場合）",
           "query": {
             "connectionName": "main",
-            "sql": "IF OBJECT_ID('Items', 'U') IS NULL CREATE TABLE Items (Id int IDENTITY(1,1) PRIMARY KEY, Name nvarchar(200) NOT NULL, Description nvarchar(500), CreatedAt datetime2 NOT NULL DEFAULT GETDATE())"
+            "sql": "DROP TABLE IF EXISTS Items"
           }
         },
         {
           "action": "executeDb",
-          "description": "テーブルデータを全削除",
+          "description": "Itemsテーブルを新規作成",
           "query": {
             "connectionName": "main",
-            "sql": "DELETE FROM Items"
-          }
-        },
-        {
-          "action": "executeDb",
-          "description": "IDENTITYをリセット",
-          "query": {
-            "connectionName": "main",
-            "sql": "DBCC CHECKIDENT ('Items', RESEED, 0)"
+            "sql": "CREATE TABLE Items (Id int IDENTITY(1,1) PRIMARY KEY, Name nvarchar(200) NOT NULL, Description nvarchar(500), CreatedAt datetime2 NOT NULL DEFAULT GETDATE())"
           }
         },
         {

@@ -23,6 +23,14 @@ public class MainForm : Form
         menuScreens.DropDownItems.Add(new ToolStripMenuItem("コンボボックス(&O)", null, (s, e) => OpenForm<ComboBoxForm>()) { Name = "MenuComboBox" });
         _menuStrip.Items.Add(menuScreens);
 
+        var menuHelp = new ToolStripMenuItem("ヘルプ(&H)") { Name = "MenuHelp" };
+        menuHelp.DropDownItems.Add(new ToolStripMenuItem("バージョン情報(&A)", null, (s, e) =>
+        {
+            using var dialog = new AboutDialog();
+            dialog.ShowDialog(this);
+        }) { Name = "MenuAbout" });
+        _menuStrip.Items.Add(menuHelp);
+
         _statusStrip = new StatusStrip { Name = "MainStatusStrip" };
         _statusLabel = new ToolStripStatusLabel("メイン画面") { Name = "StatusLabel" };
         _statusStrip.Items.Add(_statusLabel);
