@@ -1,0 +1,65 @@
+{
+  "suite": "TestApp ダイアログ検知テスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "ヘルプメニューからバージョン情報ダイアログを開閉",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "ヘルプ(H)" },
+          "description": "ヘルプメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "バージョン情報(A)" },
+          "description": "バージョン情報メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "バージョン情報",
+          "timeoutMs": 3000,
+          "description": "バージョン情報ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblAppName" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "テストアプリケーション"
+          },
+          "description": "アプリ名ラベルを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAboutOk" },
+          "description": "OKボタンをクリック"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻る"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "テストアプリケーション"
+          },
+          "description": "メイン画面のタイトルを確認"
+        }
+      ]
+    }
+  ]
+}
