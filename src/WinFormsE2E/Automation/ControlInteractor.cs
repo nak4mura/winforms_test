@@ -21,7 +21,17 @@ public class ControlInteractor
             return;
         }
 
-        // For controls without a native handle (e.g., ToolStripMenuItems), use InvokePattern
+        // For controls without a native handle (e.g., ToolStripMenuItems):
+        // Prefer ClickByPoint (non-blocking Win32 mouse event) over InvokePattern.Invoke()
+        // which blocks when the handler opens a modal dialog via ShowDialog().
+        var rect = element.Current.BoundingRectangle;
+        if (!rect.IsEmpty)
+        {
+            ClickByPoint(element);
+            return;
+        }
+
+        // Fallback for elements with no bounding rectangle
         if (element.TryGetCurrentPattern(InvokePattern.Pattern, out var pattern))
         {
             ((InvokePattern)pattern).Invoke();
@@ -34,7 +44,7 @@ public class ControlInteractor
             return;
         }
 
-        ClickByPoint(element);
+        throw new InvalidOperationException("Control has no native handle, no bounding rectangle, and does not support InvokePattern or TogglePattern.");
     }
 
     public void DoubleClick(AutomationElement element)
