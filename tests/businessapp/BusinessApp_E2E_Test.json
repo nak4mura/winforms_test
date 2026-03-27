@@ -1,0 +1,662 @@
+{
+  "suite": "従業員管理システム E2Eテスト",
+  "application": {
+    "path": "src\\BusinessApp\\bin\\Debug\\net9.0-windows\\BusinessApp.exe",
+    "startArgs": "",
+    "windowTitle": "従業員管理システム",
+    "startupWaitMs": 5000
+  },
+  "database": {
+    "connections": {
+      "main": {
+        "provider": "sqlserver",
+        "connectionString": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=BusinessAppDb;Integrated Security=True;TrustServerCertificate=True;"
+      }
+    }
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "DBセットアップ - テストデータ初期化",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テスト用従業員データを全削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees WHERE EmployeeCode LIKE 'TEST%'"
+          }
+        },
+        {
+          "action": "assertdb",
+          "description": "テスト用データが削除されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS Cnt FROM Employees WHERE EmployeeCode LIKE 'TEST%'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "メインウィンドウ表示確認",
+      "steps": [
+        {
+          "action": "assertwindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "従業員管理システム"
+          },
+          "description": "メインウィンドウのタイトルが正しいことを確認"
+        },
+        {
+          "action": "waitforcontrol",
+          "target": { "name": "検索" },
+          "description": "検索ボタンが表示されていることを確認"
+        },
+        {
+          "action": "waitforcontrol",
+          "target": { "name": "新規追加(N)" },
+          "description": "新規追加ボタンが表示されていることを確認"
+        },
+        {
+          "action": "waitforcontrol",
+          "target": { "name": "編集(E)" },
+          "description": "編集ボタンが表示されていることを確認"
+        },
+        {
+          "action": "waitforcontrol",
+          "target": { "name": "削除(D)" },
+          "description": "削除ボタンが表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "初期データ表示確認",
+      "steps": [
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "田中"
+          },
+          "description": "DataGridViewにシードデータ「田中」が表示されていることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "EMP001"
+          },
+          "description": "DataGridViewにシードデータ「EMP001」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "従業員検索テスト - キーワード検索",
+      "steps": [
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 0 },
+          "text": "田中",
+          "description": "検索テキストボックスに「田中」を入力"
+        },
+        {
+          "action": "click",
+          "target": { "name": "検索" },
+          "description": "検索ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "検索結果の反映を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "田中"
+          },
+          "description": "検索結果に「田中」が含まれていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "従業員検索テスト - 検索クリア",
+      "steps": [
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 0 },
+          "text": "田中",
+          "description": "検索テキストボックスに「田中」を入力"
+        },
+        {
+          "action": "click",
+          "target": { "name": "検索" },
+          "description": "検索ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "検索結果の反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "クリアボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "クリア結果の反映を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "鈴木"
+          },
+          "description": "クリア後に全データが表示され「鈴木」が含まれていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "従業員検索テスト - 状態フィルタ",
+      "steps": [
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 1 },
+          "value": "expand",
+          "description": "状態コンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "controlType": "combobox", "index": 1 },
+          "value": "退職",
+          "description": "「退職」を選択"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 1 },
+          "value": "collapse",
+          "description": "状態コンボボックスを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "検索" },
+          "description": "検索ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "検索結果の反映を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "小林"
+          },
+          "description": "退職者「小林」が検索結果に表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "バージョン情報ダイアログ表示テスト",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "ヘルプ(H)" },
+          "description": "ヘルプメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "バージョン情報(A)" },
+          "description": "バージョン情報メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "バージョン情報",
+          "timeoutMs": 3000,
+          "description": "バージョン情報ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてダイアログを閉じる"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "部署管理画面遷移テスト",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "assertwindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "部署マスタ管理"
+          },
+          "description": "部署マスタ管理画面のタイトルを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "営業部"
+          },
+          "description": "部署一覧にシードデータ「営業部」が表示されていることを確認"
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "部署追加テスト",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 0 },
+          "text": "TESTDPT",
+          "description": "部署コードに「TESTDPT」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 1 },
+          "text": "テスト部署",
+          "description": "部署名に「テスト部署」を入力"
+        },
+        {
+          "action": "click",
+          "target": { "name": "追加" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "追加処理の完了を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "テスト部署"
+          },
+          "description": "部署一覧に「テスト部署」が追加されていることを確認"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBに部署が登録されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT DepartmentCode, DepartmentName FROM Departments WHERE DepartmentCode = 'TESTDPT'"
+          },
+          "expectedRows": [
+            ["TESTDPT", "テスト部署"]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "部署バリデーションテスト - コード未入力",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 0 },
+          "text": "",
+          "description": "部署コードを空にする"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 1 },
+          "text": "テスト",
+          "description": "部署名を入力"
+        },
+        {
+          "action": "click",
+          "target": { "name": "追加" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "入力エラー",
+          "timeoutMs": 3000,
+          "description": "入力エラーダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてエラーダイアログを閉じる"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面に戻る"
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "従業員追加テスト",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "新規追加(N)" },
+          "description": "新規追加ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "従業員追加",
+          "description": "従業員追加画面が表示されるまで待機"
+        },
+        {
+          "action": "assertwindow",
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "従業員追加"
+          },
+          "description": "従業員追加画面のタイトルを確認"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 0 },
+          "text": "TEST001",
+          "description": "社員番号に「TEST001」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 1 },
+          "text": "テスト",
+          "description": "姓に「テスト」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 2 },
+          "text": "太郎",
+          "description": "名に「太郎」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 3 },
+          "text": "test@example.com",
+          "description": "メールアドレスを入力"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 4 },
+          "text": "03-0000-0000",
+          "description": "電話番号を入力"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックして従業員を追加"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "TEST001"
+          },
+          "description": "DataGridViewに追加した従業員「TEST001」が表示されていることを確認"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBに従業員が登録されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT EmployeeCode, LastName, FirstName, Email FROM Employees WHERE EmployeeCode = 'TEST001'"
+          },
+          "expectedRows": [
+            ["TEST001", "テスト", "太郎", "test@example.com"]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "従業員追加バリデーションテスト - 社員番号未入力",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "新規追加(N)" },
+          "description": "新規追加ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "従業員追加",
+          "description": "従業員追加画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "入力せずにOKボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "入力エラー",
+          "timeoutMs": 3000,
+          "description": "入力エラーダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてエラーダイアログを閉じる"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員追加",
+          "description": "従業員追加画面に戻る"
+        },
+        {
+          "action": "click",
+          "target": { "name": "キャンセル" },
+          "description": "キャンセルボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "従業員削除テスト - 未選択時エラー",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "削除(D)" },
+          "description": "従業員未選択状態で削除ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "確認",
+          "timeoutMs": 3000,
+          "description": "確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてダイアログを閉じる"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "従業員編集テスト - 未選択時エラー",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "編集(E)" },
+          "description": "従業員未選択状態で編集ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "確認",
+          "timeoutMs": 3000,
+          "description": "確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてダイアログを閉じる"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "DBクリーンアップ - テストデータ削除",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テスト用従業員データを削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees WHERE EmployeeCode LIKE 'TEST%'"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "テスト用部署データを削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Departments WHERE DepartmentCode = 'TESTDPT'"
+          }
+        },
+        {
+          "action": "assertdb",
+          "description": "テスト用データが削除されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS Cnt FROM Employees WHERE EmployeeCode LIKE 'TEST%'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        }
+      ]
+    }
+  ]
+}
