@@ -183,7 +183,8 @@ public class StepExecutor
     {
         if (step.WindowTitle == null) throw new InvalidOperationException("'waitForWindow' action requires 'windowTitle' field.");
         var timeout = step.TimeoutMs ?? context.Settings.DefaultTimeoutMs;
-        var window = _windowTracker.WaitForWindow(step.WindowTitle, timeout, context.Settings.RetryIntervalMs);
+        var window = _windowTracker.WaitForWindow(step.WindowTitle, timeout, context.Settings.RetryIntervalMs,
+            processId: context.AppProcess?.Id);
 
         if (window == null)
         {
@@ -208,7 +209,8 @@ public class StepExecutor
     {
         if (step.WindowTitle == null) throw new InvalidOperationException("'switchWindow' action requires 'windowTitle' field.");
         var timeout = step.TimeoutMs ?? context.Settings.DefaultTimeoutMs;
-        var window = _windowTracker.WaitForWindow(step.WindowTitle, timeout, context.Settings.RetryIntervalMs);
+        var window = _windowTracker.WaitForWindow(step.WindowTitle, timeout, context.Settings.RetryIntervalMs,
+            processId: context.AppProcess?.Id);
 
         if (window == null)
         {
@@ -227,7 +229,8 @@ public class StepExecutor
         if (step.WindowTitle != null)
         {
             var timeout = step.TimeoutMs ?? context.Settings.DefaultTimeoutMs;
-            var window = _windowTracker.WaitForWindow(step.WindowTitle, timeout, context.Settings.RetryIntervalMs);
+            var window = _windowTracker.WaitForWindow(step.WindowTitle, timeout, context.Settings.RetryIntervalMs,
+                processId: context.AppProcess?.Id);
             if (window != null)
             {
                 _windowTracker.CloseWindow(window);

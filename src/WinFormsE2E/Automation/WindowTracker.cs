@@ -8,14 +8,14 @@ namespace WinFormsE2E.Automation;
 
 public class WindowTracker
 {
-    public AutomationElement? WaitForWindow(string titlePattern, int timeoutMs, int retryIntervalMs = 200)
+    public AutomationElement? WaitForWindow(string titlePattern, int timeoutMs, int retryIntervalMs = 200, int? processId = null)
     {
         return WaitStrategy.WaitUntil(() =>
         {
             // Use Win32 EnumWindows to find windows. This avoids UIAutomation's FindAll
             // which can hang when there's a pending InvokePattern.Invoke() call
             // (e.g., when a button opens a modal dialog).
-            var targetHwnd = FindWindowByTitle(titlePattern);
+            var targetHwnd = FindWindowByTitle(titlePattern, processId);
             if (targetHwnd == IntPtr.Zero)
                 return null;
 
@@ -95,7 +95,7 @@ public class WindowTracker
         throw new InvalidOperationException("Window does not support WindowPattern and has no native handle.");
     }
 
-    private IntPtr FindWindowByTitle(string titlePattern)
+    private IntPtr FindWindowByTitle(string titlePattern, int? processId = null)
     {
         IntPtr found = IntPtr.Zero;
 
@@ -103,6 +103,13 @@ public class WindowTracker
         {
             if (!IsWindowVisible(hwnd))
                 return true; // continue enumeration
+
+            if (processId.HasValue)
+            {
+                GetWindowThreadProcessId(hwnd, out uint windowProcessId);
+                if (windowProcessId != (uint)processId.Value)
+                    return true; // wrong process, continue
+            }
 
             var title = GetWindowTitle(hwnd);
             if (title != null && MatchesTitle(title, titlePattern))
@@ -157,4 +164,7 @@ public class WindowTracker
 
     [DllImport("user32.dll")]
     private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 }
