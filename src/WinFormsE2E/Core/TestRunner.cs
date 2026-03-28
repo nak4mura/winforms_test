@@ -48,7 +48,8 @@ public class TestRunner
             var mainWindow = _windowTracker.WaitForWindow(
                 _suite.Application.WindowTitle,
                 _suite.Application.StartupWaitMs,
-                _suite.Settings.RetryIntervalMs);
+                _suite.Settings.RetryIntervalMs,
+                processId: process?.Id);
 
             if (mainWindow == null)
             {
@@ -199,7 +200,8 @@ public class TestRunner
         var mainWindow = _windowTracker.WaitForWindow(
             _suite.Application.WindowTitle,
             _suite.Settings.DefaultTimeoutMs,
-            _suite.Settings.RetryIntervalMs);
+            _suite.Settings.RetryIntervalMs,
+            processId: context.AppProcess?.Id);
 
         if (mainWindow != null)
         {
