@@ -12,7 +12,7 @@
   },
   "scenarios": [
     {
-      "name": "削除確認ダイアログ - はいを選択",
+      "name": "削除確認ダイアログ - はいを選択して削除実行",
       "steps": [
         {
           "action": "click",
@@ -30,9 +30,19 @@
           "description": "メッセージ画面が表示されるまで待機"
         },
         {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "未操作"
+          },
+          "description": "結果ラベルが初期状態（未操作）であることを確認"
+        },
+        {
           "action": "click",
           "target": { "automationId": "BtnDeleteConfirm" },
-          "description": "削除確認ボタンをクリック"
+          "description": "削除確認ボタンをクリックしてYesNoダイアログを表示"
         },
         {
           "action": "waitForWindow",
@@ -43,7 +53,7 @@
         {
           "action": "click",
           "target": { "name": "はい(Y)" },
-          "description": "「はい」ボタンをクリック"
+          "description": "「はい」ボタンをクリックして削除を実行"
         },
         {
           "action": "switchWindow",
@@ -63,7 +73,7 @@
       ]
     },
     {
-      "name": "削除確認ダイアログ - いいえを選択",
+      "name": "削除確認ダイアログ - いいえを選択して削除キャンセル",
       "steps": [
         {
           "action": "click",
@@ -83,7 +93,7 @@
         {
           "action": "click",
           "target": { "automationId": "BtnDeleteConfirm" },
-          "description": "削除確認ボタンをクリック"
+          "description": "削除確認ボタンをクリックしてYesNoダイアログを表示"
         },
         {
           "action": "waitForWindow",
@@ -94,7 +104,7 @@
         {
           "action": "click",
           "target": { "name": "いいえ(N)" },
-          "description": "「いいえ」ボタンをクリック"
+          "description": "「いいえ」ボタンをクリックして削除をキャンセル"
         },
         {
           "action": "switchWindow",
@@ -114,7 +124,58 @@
       ]
     },
     {
-      "name": "保存確認ダイアログ - はいを選択",
+      "name": "削除確認ダイアログ - Escキーでキャンセル",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDeleteConfirm" },
+          "description": "削除確認ボタンをクリックしてYesNoダイアログを表示"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "削除確認",
+          "timeoutMs": 3000,
+          "description": "削除確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{ESC}",
+          "description": "Escキーでダイアログを閉じる"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "削除がキャンセルされました"
+          },
+          "description": "Escキーで閉じた場合も「削除がキャンセルされました」になることを確認"
+        }
+      ]
+    },
+    {
+      "name": "保存確認ダイアログ - はいを選択して保存実行",
       "steps": [
         {
           "action": "click",
@@ -134,7 +195,7 @@
         {
           "action": "click",
           "target": { "automationId": "BtnSaveConfirm" },
-          "description": "保存確認ボタンをクリック"
+          "description": "保存確認ボタンをクリックしてYesNoCancelダイアログを表示"
         },
         {
           "action": "waitForWindow",
@@ -145,7 +206,7 @@
         {
           "action": "click",
           "target": { "name": "はい(Y)" },
-          "description": "「はい」ボタンをクリック"
+          "description": "「はい」ボタンをクリックして保存を実行"
         },
         {
           "action": "switchWindow",
@@ -165,7 +226,109 @@
       ]
     },
     {
-      "name": "バリデーション - 空入力でエラー",
+      "name": "保存確認ダイアログ - いいえを選択して保存せず続行",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSaveConfirm" },
+          "description": "保存確認ボタンをクリックしてYesNoCancelダイアログを表示"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "保存確認",
+          "timeoutMs": 3000,
+          "description": "保存確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "いいえ(N)" },
+          "description": "「いいえ」ボタンをクリックして保存せず続行"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "保存せずに続行します"
+          },
+          "description": "結果ラベルに「保存せずに続行します」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "保存確認ダイアログ - キャンセルを選択して操作取消",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSaveConfirm" },
+          "description": "保存確認ボタンをクリックしてYesNoCancelダイアログを表示"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "保存確認",
+          "timeoutMs": 3000,
+          "description": "保存確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "キャンセル" },
+          "description": "「キャンセル」ボタンをクリックして操作を取消"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "操作がキャンセルされました"
+          },
+          "description": "結果ラベルに「操作がキャンセルされました」が表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "バリデーション - 空入力でエラーダイアログ表示",
       "steps": [
         {
           "action": "click",
@@ -185,18 +348,18 @@
         {
           "action": "click",
           "target": { "automationId": "BtnValidation" },
-          "description": "バリデーションボタンをクリック（入力値なし）"
+          "description": "入力値が空のままバリデーションボタンをクリック"
         },
         {
           "action": "waitForWindow",
           "windowTitle": "入力エラー",
           "timeoutMs": 3000,
-          "description": "エラーダイアログが表示されるまで待機"
+          "description": "入力エラーダイアログが表示されるまで待機"
         },
         {
           "action": "click",
           "target": { "name": "OK" },
-          "description": "OKボタンをクリック"
+          "description": "OKボタンをクリックしてエラーダイアログを閉じる"
         },
         {
           "action": "switchWindow",
@@ -216,7 +379,7 @@
       ]
     },
     {
-      "name": "バリデーション - 入力ありで成功",
+      "name": "バリデーション - 入力ありで成功（ダイアログなし）",
       "steps": [
         {
           "action": "click",
@@ -237,7 +400,7 @@
           "action": "type",
           "target": { "automationId": "TxtMessageInput" },
           "text": "テスト値",
-          "description": "入力値に「テスト値」を入力"
+          "description": "入力欄に「テスト値」を入力"
         },
         {
           "action": "click",
@@ -247,7 +410,7 @@
         {
           "action": "wait",
           "ms": 300,
-          "description": "処理完了を待機"
+          "description": "バリデーション処理完了を待機"
         },
         {
           "action": "assert",
@@ -262,7 +425,7 @@
       ]
     },
     {
-      "name": "成功通知メッセージ",
+      "name": "成功通知ダイアログ - Enterキーで閉じる",
       "steps": [
         {
           "action": "click",
@@ -291,9 +454,9 @@
           "description": "成功ダイアログが表示されるまで待機"
         },
         {
-          "action": "click",
-          "target": { "name": "OK" },
-          "description": "OKボタンをクリック"
+          "action": "sendKeys",
+          "keys": "{ENTER}",
+          "description": "Enterキーで成功ダイアログのOKボタンを押下"
         },
         {
           "action": "switchWindow",
@@ -308,7 +471,7 @@
             "operator": "contains",
             "value": "成功通知を表示しました"
           },
-          "description": "結果ラベルに「成功通知を表示しました」が表示されていることを確認"
+          "description": "Enterキーで閉じた後も「成功通知を表示しました」が表示されていることを確認"
         }
       ]
     }
