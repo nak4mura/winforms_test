@@ -1,0 +1,150 @@
+{
+  "suite": "TestApp ファイル出力テスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "ファイル出力 — テキストファイルの保存と存在確認",
+      "steps": [
+        {
+          "action": "deleteFile",
+          "value": "%TEMP%\\e2e_test_output.txt",
+          "description": "テスト前クリーンアップ: 出力先ファイルを削除"
+        },
+        {
+          "action": "assertFile",
+          "value": "%TEMP%\\e2e_test_output.txt",
+          "expect": { "property": "exists", "operator": "equals", "value": "false" },
+          "description": "出力ファイルが存在しないことを確認"
+        },
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファイル出力(E)" },
+          "description": "ファイル出力メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファイル出力",
+          "description": "ファイル出力画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtFileContent" },
+          "text": "E2Eテスト出力内容",
+          "description": "出力内容を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSaveFile" },
+          "description": "ファイル保存ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "名前を付けて保存",
+          "timeoutMs": 5000,
+          "description": "名前を付けて保存ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "%TEMP%\\e2e_test_output.txt",
+          "description": "ファイル名テキストボックスにパスを入力"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{ENTER}",
+          "description": "Enterキーで保存を実行"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "ファイル出力",
+          "description": "ファイル出力画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFileResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "ファイルを保存しました"
+          },
+          "description": "保存成功メッセージが表示されていることを確認"
+        },
+        {
+          "action": "assertFile",
+          "value": "%TEMP%\\e2e_test_output.txt",
+          "expect": { "property": "exists", "operator": "equals", "value": "true" },
+          "description": "出力ファイルが存在することを確認"
+        },
+        {
+          "action": "deleteFile",
+          "value": "%TEMP%\\e2e_test_output.txt",
+          "description": "テスト後クリーンアップ: 出力先ファイルを削除"
+        }
+      ]
+    },
+    {
+      "name": "ファイル出力 — 保存ダイアログのキャンセル",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファイル出力(E)" },
+          "description": "ファイル出力メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファイル出力",
+          "description": "ファイル出力画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSaveFile" },
+          "description": "ファイル保存ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "名前を付けて保存",
+          "timeoutMs": 5000,
+          "description": "名前を付けて保存ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{ESC}",
+          "description": "Escキーで保存ダイアログをキャンセル"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "ファイル出力",
+          "description": "ファイル出力画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFileResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "保存がキャンセルされました"
+          },
+          "description": "キャンセルメッセージが表示されていることを確認"
+        }
+      ]
+    }
+  ]
+}
