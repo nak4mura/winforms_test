@@ -42,6 +42,8 @@ public class StepExecutor
                 "assertdb" => ExecuteAssertDb(step, context, collector),
                 "executedb" => ExecuteExecuteDb(step, context),
                 "expandcollapse" => ExecuteExpandCollapse(step, context),
+                "assertfile" => ExecuteAssertFile(step),
+                "deletefile" => ExecuteDeleteFile(step),
                 _ => throw new InvalidOperationException($"Unknown action: {step.Action}")
             };
 
@@ -425,6 +427,45 @@ public class StepExecutor
         if (value == null || value == DBNull.Value) return "null";
         if (value is string s) return $"\"{s}\"";
         return value.ToString() ?? "null";
+    }
+
+    private static StepResult ExecuteAssertFile(TestStep step)
+    {
+        if (step.Value == null) throw new InvalidOperationException("'assertFile' action requires 'value' field (file path).");
+        if (step.Expect == null) throw new InvalidOperationException("'assertFile' action requires 'expect' field.");
+
+        var filePath = Environment.ExpandEnvironmentVariables(step.Value);
+
+        var actual = step.Expect.Property.ToLowerInvariant() switch
+        {
+            "exists" => System.IO.File.Exists(filePath).ToString(),
+            _ => throw new InvalidOperationException($"Unsupported assertFile property: {step.Expect.Property}")
+        };
+
+        var passed = step.Expect.Operator.ToLowerInvariant() switch
+        {
+            "equals" or "equalsignorecase" => string.Equals(actual, step.Expect.Value, StringComparison.OrdinalIgnoreCase),
+            "notequals" => !string.Equals(actual, step.Expect.Value, StringComparison.OrdinalIgnoreCase),
+            _ => string.Equals(actual, step.Expect.Value, StringComparison.OrdinalIgnoreCase)
+        };
+
+        return passed
+            ? StepResult.Pass(step.DisplayName, 0)
+            : StepResult.Fail(step.DisplayName, $"Expected file [{step.Expect.Property}] {step.Expect.Operator} \"{step.Expect.Value}\", but was \"{actual}\" (path: {filePath})", 0);
+    }
+
+    private static StepResult ExecuteDeleteFile(TestStep step)
+    {
+        if (step.Value == null) throw new InvalidOperationException("'deleteFile' action requires 'value' field (file path).");
+
+        var filePath = Environment.ExpandEnvironmentVariables(step.Value);
+
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+        }
+
+        return StepResult.Pass(step.DisplayName, 0);
     }
 
     private AutomationElement FindElement(TestStep step, TestContext context)

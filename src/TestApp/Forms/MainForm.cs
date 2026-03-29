@@ -21,6 +21,7 @@ public class MainForm : Form
         menuScreens.DropDownItems.Add(new ToolStripMenuItem("入力制御(&I)", null, (s, e) => OpenForm<InputControlForm>()) { Name = "MenuInputControl" });
         menuScreens.DropDownItems.Add(new ToolStripMenuItem("データCRUD DB(&B)", null, (s, e) => OpenForm<DbCrudForm>()) { Name = "MenuDbCrud" });
         menuScreens.DropDownItems.Add(new ToolStripMenuItem("コンボボックス(&O)", null, (s, e) => OpenForm<ComboBoxForm>()) { Name = "MenuComboBox" });
+        menuScreens.DropDownItems.Add(new ToolStripMenuItem("ファイル出力(&E)", null, (s, e) => OpenForm<FileOutputForm>()) { Name = "MenuFileOutput" });
         _menuStrip.Items.Add(menuScreens);
 
         var menuHelp = new ToolStripMenuItem("ヘルプ(&H)") { Name = "MenuHelp" };
