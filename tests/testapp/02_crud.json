@@ -1,0 +1,439 @@
+{
+  "suite": "TestApp データCRUDテスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "データの新規登録と確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemName" },
+          "text": "テストアイテム1",
+          "description": "名前に「テストアイテム1」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemDescription" },
+          "text": "テスト用の説明文です",
+          "description": "説明に「テスト用の説明文です」を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ追加後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CrudDataGrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "テストアイテム1"
+          },
+          "description": "グリッドに追加データが表示されていることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtItemName" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": ""
+          },
+          "description": "追加後に名前入力欄がクリアされていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "空入力での登録は無視される",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAdd" },
+          "description": "名前が空のまま追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "BtnUpdate" },
+          "expect": {
+            "property": "IsEnabled",
+            "operator": "equals",
+            "value": "False"
+          },
+          "description": "更新ボタンが無効のまま（グリッドにデータがない）であることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "BtnDelete" },
+          "expect": {
+            "property": "IsEnabled",
+            "operator": "equals",
+            "value": "False"
+          },
+          "description": "削除ボタンが無効のまま（グリッドにデータがない）であることを確認"
+        }
+      ]
+    },
+    {
+      "name": "複数データの登録と確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemName" },
+          "text": "アイテムA",
+          "description": "名前に「アイテムA」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemDescription" },
+          "text": "説明A",
+          "description": "説明を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemName" },
+          "text": "アイテムB",
+          "description": "名前に「アイテムB」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemDescription" },
+          "text": "説明B",
+          "description": "説明を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CrudDataGrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "アイテムA"
+          },
+          "description": "グリッドに1件目のデータが表示されていることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CrudDataGrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "アイテムB"
+          },
+          "description": "グリッドに2件目のデータが表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "データの更新と新旧値の検証",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemName" },
+          "text": "更新前アイテム",
+          "description": "名前を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemDescription" },
+          "text": "更新前の説明",
+          "description": "説明を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "追加後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CrudDataGrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "更新前アイテム"
+          },
+          "description": "更新前のデータがグリッドに表示されていることを確認"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemName" },
+          "text": "更新後アイテム",
+          "description": "名前を「更新後アイテム」に上書き"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemDescription" },
+          "text": "更新後の説明",
+          "description": "説明を「更新後の説明」に上書き"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnUpdate" },
+          "description": "更新ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "更新後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CrudDataGrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "更新後アイテム"
+          },
+          "description": "グリッドに更新後のデータが表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "データの削除とグリッドからの消失確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemName" },
+          "text": "削除対象アイテム",
+          "description": "名前を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemDescription" },
+          "text": "このアイテムは削除されます",
+          "description": "説明を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "追加後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CrudDataGrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "削除対象アイテム"
+          },
+          "description": "削除前にグリッドにデータが存在することを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDelete" },
+          "description": "削除ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "削除後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "BtnDelete" },
+          "expect": {
+            "property": "IsEnabled",
+            "operator": "equals",
+            "value": "False"
+          },
+          "description": "削除後に削除ボタンが無効化されていることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "BtnUpdate" },
+          "expect": {
+            "property": "IsEnabled",
+            "operator": "equals",
+            "value": "False"
+          },
+          "description": "削除後に更新ボタンが無効化されていることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtItemName" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": ""
+          },
+          "description": "削除後に名前入力欄がクリアされていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "特殊文字を含むデータの登録",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemName" },
+          "text": "特殊文字<>&\"'テスト",
+          "description": "特殊文字を含む名前を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtItemDescription" },
+          "text": "記号!@#$%を含む説明",
+          "description": "特殊文字を含む説明を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "追加後に待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "CrudDataGrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "特殊文字"
+          },
+          "description": "特殊文字を含むデータがグリッドに表示されていることを確認"
+        }
+      ]
+    }
+  ]
+}

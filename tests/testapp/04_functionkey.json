@@ -1,0 +1,316 @@
+{
+  "suite": "TestApp ファンクションキーテスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "F5キー - リフレッシュ実行と結果ラベル検証",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "未操作"
+          },
+          "description": "初期状態で結果ラベルが「未操作」であることを確認"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{F5}",
+          "description": "F5キーを押下してリフレッシュを実行"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "リフレッシュ処理完了を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "最後の操作: F5 - リフレッシュ (回数: 1)"
+          },
+          "description": "結果ラベルが「F5 - リフレッシュ (回数: 1)」であることを厳密に確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyLog" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "リフレッシュしました"
+          },
+          "description": "ログにリフレッシュの記録が残っていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "F5キー - 複数回押下でカウント増加",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{F5}",
+          "description": "F5キーを1回目押下"
+        },
+        {
+          "action": "wait",
+          "ms": 200,
+          "description": "処理完了を待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{F5}",
+          "description": "F5キーを2回目押下"
+        },
+        {
+          "action": "wait",
+          "ms": 200,
+          "description": "処理完了を待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{F5}",
+          "description": "F5キーを3回目押下"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "処理完了を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "最後の操作: F5 - リフレッシュ (回数: 3)"
+          },
+          "description": "リフレッシュ回数が正確に3であることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyLog" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "3回目"
+          },
+          "description": "ログに3回目のリフレッシュが記録されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "F1キー - ヘルプダイアログ表示と結果ラベル検証",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "未操作"
+          },
+          "description": "初期状態で結果ラベルが「未操作」であることを確認"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{F1}",
+          "description": "F1キーを押下してヘルプを表示"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ヘルプ",
+          "timeoutMs": 3000,
+          "description": "ヘルプダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてヘルプダイアログを閉じる"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "最後の操作: F1 - ヘルプ"
+          },
+          "description": "結果ラベルが「F1 - ヘルプ」であることを厳密に確認"
+        }
+      ]
+    },
+    {
+      "name": "F10キー - 保存ダイアログ表示と結果ラベル検証",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "未操作"
+          },
+          "description": "初期状態で結果ラベルが「未操作」であることを確認"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{F10}",
+          "description": "F10キーを押下して保存を実行"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "保存完了",
+          "timeoutMs": 3000,
+          "description": "保存完了ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックして保存完了ダイアログを閉じる"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "最後の操作: F10 - 保存"
+          },
+          "description": "結果ラベルが「F10 - 保存」であることを厳密に確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyLog" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "保存しました"
+          },
+          "description": "ログに保存の記録が残っていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "Escキー - 画面を閉じてメインに戻る",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{ESC}",
+          "description": "Escキーを押下してファンクションキー画面を閉じる"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "Escキーで画面が閉じてメイン画面に戻ることを確認"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "テストアプリケーション"
+          },
+          "description": "メイン画面に正しく戻っていることを確認"
+        }
+      ]
+    }
+  ]
+}

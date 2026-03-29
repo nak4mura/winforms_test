@@ -1,0 +1,99 @@
+using System.Text.Json;
+using WinFormsE2E.Core;
+using WinFormsE2E.Evidence;
+using WinFormsE2E.Reporting;
+
+namespace WinFormsE2E;
+
+public class Program
+{
+    public static int Main(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            Console.Error.WriteLine("Usage: WinFormsE2E <test-suite.json> [--verbose] [--output <results.json>] [--evidence] [--evidence-output <dir>]");
+            return 2;
+        }
+
+        var jsonPath = args[0];
+        var verbose = args.Contains("--verbose");
+        string? outputPath = null;
+        var evidenceEnabled = args.Contains("--evidence");
+        string? evidenceOutputDir = null;
+
+        var outputIndex = Array.IndexOf(args, "--output");
+        if (outputIndex >= 0 && outputIndex + 1 < args.Length)
+        {
+            outputPath = args[outputIndex + 1];
+        }
+
+        var evidenceOutputIndex = Array.IndexOf(args, "--evidence-output");
+        if (evidenceOutputIndex >= 0 && evidenceOutputIndex + 1 < args.Length)
+        {
+            evidenceOutputDir = args[evidenceOutputIndex + 1];
+            evidenceEnabled = true;
+        }
+
+        if (!System.IO.File.Exists(jsonPath))
+        {
+            Console.Error.WriteLine($"File not found: {jsonPath}");
+            return 2;
+        }
+
+        try
+        {
+            var json = System.IO.File.ReadAllText(jsonPath);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
+            };
+            var suite = JsonSerializer.Deserialize<Models.TestSuite>(json, options);
+            if (suite == null)
+            {
+                Console.Error.WriteLine("Failed to parse test suite JSON.");
+                return 2;
+            }
+
+            if (evidenceEnabled && evidenceOutputDir == null)
+            {
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                var suiteName = suite.Suite?.Replace(" ", "_") ?? "unknown";
+                evidenceOutputDir = System.IO.Path.Combine("evidence", $"{timestamp}_{suiteName}");
+            }
+
+            IEvidenceCollector? evidenceCollector = null;
+            if (evidenceEnabled && evidenceOutputDir != null)
+            {
+                evidenceCollector = new ScreenshotCollector(evidenceOutputDir);
+            }
+
+            var reporters = new List<IResultReporter> { new ConsoleReporter(verbose) };
+            if (outputPath != null)
+            {
+                reporters.Add(new JsonReporter(outputPath));
+            }
+            if (evidenceCollector != null && evidenceOutputDir != null)
+            {
+                reporters.Add(new EvidenceReporter(evidenceCollector.GetBundle(), evidenceOutputDir));
+            }
+
+            var runner = new TestRunner(suite, reporters, evidenceCollector);
+            var result = runner.Run();
+
+            return result.Passed ? 0 : 1;
+        }
+        catch (JsonException ex)
+        {
+            Console.Error.WriteLine($"JSON parse error: {ex.Message}");
+            return 2;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error: {ex.Message}");
+            if (verbose) Console.Error.WriteLine(ex.StackTrace);
+            return 2;
+        }
+    }
+}

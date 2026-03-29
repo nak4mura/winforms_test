@@ -1,0 +1,46 @@
+{
+  "suite": "Notepad Basic Test",
+  "application": {
+    "path": "notepad.exe",
+    "startArgs": "",
+    "windowTitle": "*メモ帳*",
+    "startupWaitMs": 3000
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "テキスト入力と確認",
+      "steps": [
+        {
+          "action": "type",
+          "target": { "className": "RichEditD2DPT" },
+          "text": "Hello, WinForms E2E Test!",
+          "description": "テキストを入力"
+        },
+        {
+          "action": "assert",
+          "target": { "className": "RichEditD2DPT" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "Hello"
+          },
+          "description": "入力テキストを確認"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "^a",
+          "description": "全選択 (Ctrl+A)"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{DELETE}",
+          "description": "削除"
+        }
+      ]
+    }
+  ]
+}

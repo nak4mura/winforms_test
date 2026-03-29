@@ -1,0 +1,335 @@
+{
+  "suite": "DB期待値確認テスト",
+  "application": {
+    "path": "src\\TestApp\\bin\\Debug\\net9.0-windows\\TestApp.exe",
+    "startArgs": "",
+    "windowTitle": "テストアプリケーション",
+    "startupWaitMs": 3000
+  },
+  "database": {
+    "connections": {
+      "main": {
+        "provider": "sqlserver",
+        "connectionString": "Data Source=(localdb)\\MSSQLLocalDB;Database=TestDb;Integrated Security=true;TrustServerCertificate=true;"
+      }
+    }
+  },
+  "settings": {
+    "defaultTimeoutMs": 5000,
+    "retryIntervalMs": 200
+  },
+  "scenarios": [
+    {
+      "name": "DB初期化とテーブル作成確認",
+      "steps": [
+        {
+          "action": "executeDb",
+          "description": "Itemsテーブルを削除（存在する場合）",
+          "query": {
+            "connectionName": "main",
+            "sql": "DROP TABLE IF EXISTS Items"
+          }
+        },
+        {
+          "action": "executeDb",
+          "description": "Itemsテーブルを新規作成",
+          "query": {
+            "connectionName": "main",
+            "sql": "CREATE TABLE Items (Id int IDENTITY(1,1) PRIMARY KEY, Name nvarchar(200) NOT NULL, Description nvarchar(500), CreatedAt datetime2 NOT NULL DEFAULT GETDATE())"
+          }
+        },
+        {
+          "action": "assertDb",
+          "description": "テーブルが空であることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT Id, Name, Description FROM Items"
+          },
+          "expectedRows": []
+        }
+      ]
+    },
+    {
+      "name": "UI操作によるDB登録と確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD DB(B)" },
+          "description": "データCRUD DBメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD (DB)",
+          "description": "DB CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtDbItemName" },
+          "text": "テストアイテム1",
+          "description": "名前に「テストアイテム1」を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtDbItemDescription" },
+          "text": "テスト説明1",
+          "description": "説明に「テスト説明1」を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDbAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "DB反映を待機"
+        },
+        {
+          "action": "assertDb",
+          "description": "1件目のデータがDBに登録されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT Id, Name, Description FROM Items ORDER BY Id"
+          },
+          "expectedRows": [
+            [1, "テストアイテム1", "テスト説明1"]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "説明なし（空文字）でのDB登録確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD DB(B)" },
+          "description": "データCRUD DBメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD (DB)",
+          "description": "DB CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtDbItemName" },
+          "text": "説明なしアイテム",
+          "description": "名前のみ入力し、説明は空のまま"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDbAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "DB反映を待機"
+        },
+        {
+          "action": "assertDb",
+          "description": "説明が空文字でDBに登録されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT Name, Description FROM Items WHERE Name = N'説明なしアイテム'"
+          },
+          "expectedRows": [
+            ["説明なしアイテム", ""]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "特殊文字を含むデータのDB登録確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD DB(B)" },
+          "description": "データCRUD DBメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD (DB)",
+          "description": "DB CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtDbItemName" },
+          "text": "O'Reilly&Co",
+          "description": "シングルクォートとアンパサンドを含む名前を入力"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtDbItemDescription" },
+          "text": "記号<>&\"テスト",
+          "description": "HTMLエスケープ対象の特殊文字を含む説明を入力"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDbAdd" },
+          "description": "追加ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "DB反映を待機"
+        },
+        {
+          "action": "assertDb",
+          "description": "特殊文字を含むデータがDBに正しく登録されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT Name, Description FROM Items WHERE Name = N'O''Reilly&Co'"
+          },
+          "expectedRows": [
+            ["O'Reilly&Co", "記号<>&\"テスト"]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UI操作によるDB更新と整合性確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD DB(B)" },
+          "description": "データCRUD DBメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD (DB)",
+          "description": "DB CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtDbItemName" },
+          "text": "更新済みアイテム1",
+          "description": "先頭行が自動選択されているため名前を上書き"
+        },
+        {
+          "action": "type",
+          "target": { "automationId": "TxtDbItemDescription" },
+          "text": "更新後の説明",
+          "description": "説明を上書き"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDbUpdate" },
+          "description": "更新ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "DB反映を待機"
+        },
+        {
+          "action": "assertDb",
+          "description": "DB上でデータが更新されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT Name, Description FROM Items WHERE Id = 1"
+          },
+          "expectedRows": [
+            ["更新済みアイテム1", "更新後の説明"]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UI操作によるDB削除と不在確認",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD DB(B)" },
+          "description": "データCRUD DBメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD (DB)",
+          "description": "DB CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "assertDb",
+          "description": "削除前にデータが存在することを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Items WHERE Id = 1"
+          },
+          "expectedRows": [
+            [1]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnDbDelete" },
+          "description": "先頭行が自動選択されているため削除ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "DB反映を待機"
+        },
+        {
+          "action": "assertDb",
+          "description": "削除後にId=1のデータがDBから消えていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Items WHERE Id = 1"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "クリーンアップとテーブル削除確認",
+      "steps": [
+        {
+          "action": "executeDb",
+          "description": "テストテーブルを削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DROP TABLE IF EXISTS Items"
+          }
+        },
+        {
+          "action": "assertDb",
+          "description": "テーブルが削除されたことを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Items'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        }
+      ]
+    }
+  ]
+}
