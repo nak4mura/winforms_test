@@ -42,8 +42,8 @@ public class StepExecutor
                 "assertdb" => ExecuteAssertDb(step, context, collector),
                 "executedb" => ExecuteExecuteDb(step, context),
                 "expandcollapse" => ExecuteExpandCollapse(step, context),
-                "assertfile" => ExecuteAssertFile(step),
-                "deletefile" => ExecuteDeleteFile(step),
+                "assertfile" => ExecuteAssertFile(step, collector),
+                "deletefile" => ExecuteDeleteFile(step, collector),
                 _ => throw new InvalidOperationException($"Unknown action: {step.Action}")
             };
 
@@ -429,16 +429,18 @@ public class StepExecutor
         return value.ToString() ?? "null";
     }
 
-    private static StepResult ExecuteAssertFile(TestStep step)
+    private StepResult ExecuteAssertFile(TestStep step, IEvidenceCollector? collector)
     {
         if (step.Value == null) throw new InvalidOperationException("'assertFile' action requires 'value' field (file path).");
         if (step.Expect == null) throw new InvalidOperationException("'assertFile' action requires 'expect' field.");
 
         var filePath = Environment.ExpandEnvironmentVariables(step.Value);
+        var fileExists = System.IO.File.Exists(filePath);
+        long? fileSize = fileExists ? new System.IO.FileInfo(filePath).Length : null;
 
         var actual = step.Expect.Property.ToLowerInvariant() switch
         {
-            "exists" => System.IO.File.Exists(filePath).ToString(),
+            "exists" => fileExists.ToString(),
             _ => throw new InvalidOperationException($"Unsupported assertFile property: {step.Expect.Property}")
         };
 
@@ -449,21 +451,55 @@ public class StepExecutor
             _ => string.Equals(actual, step.Expect.Value, StringComparison.OrdinalIgnoreCase)
         };
 
+        SafeCall(() =>
+        {
+            if (collector is ScreenshotCollector sc)
+            {
+                var attachment = new FileOperationAttachment(
+                    step.Description ?? "File Assert",
+                    "assertFile",
+                    filePath,
+                    fileExisted: fileExists,
+                    fileExists: fileExists,
+                    fileSize: fileSize,
+                    passed: passed,
+                    expectedValue: $"{step.Expect.Property} {step.Expect.Operator} {step.Expect.Value}",
+                    actualValue: actual);
+                sc.AttachToCurrentStep(attachment);
+            }
+        });
+
         return passed
             ? StepResult.Pass(step.DisplayName, 0)
             : StepResult.Fail(step.DisplayName, $"Expected file [{step.Expect.Property}] {step.Expect.Operator} \"{step.Expect.Value}\", but was \"{actual}\" (path: {filePath})", 0);
     }
 
-    private static StepResult ExecuteDeleteFile(TestStep step)
+    private StepResult ExecuteDeleteFile(TestStep step, IEvidenceCollector? collector)
     {
         if (step.Value == null) throw new InvalidOperationException("'deleteFile' action requires 'value' field (file path).");
 
         var filePath = Environment.ExpandEnvironmentVariables(step.Value);
+        var fileExisted = System.IO.File.Exists(filePath);
 
-        if (System.IO.File.Exists(filePath))
+        if (fileExisted)
         {
             System.IO.File.Delete(filePath);
         }
+
+        SafeCall(() =>
+        {
+            if (collector is ScreenshotCollector sc)
+            {
+                var attachment = new FileOperationAttachment(
+                    step.Description ?? "File Delete",
+                    "deleteFile",
+                    filePath,
+                    fileExisted: fileExisted,
+                    fileExists: false,
+                    passed: true);
+                sc.AttachToCurrentStep(attachment);
+            }
+        });
 
         return StepResult.Pass(step.DisplayName, 0);
     }

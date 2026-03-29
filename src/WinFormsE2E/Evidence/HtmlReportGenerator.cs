@@ -98,13 +98,13 @@ public class HtmlReportGenerator
 
                 sb.AppendLine("</div>"); // screenshots
 
-                // Render DB query attachments
+                // Render attachments
                 foreach (var attachment in stepEvidence.Attachments)
                 {
                     if (attachment is DbQueryAttachment dbAttachment)
-                    {
                         RenderDbQueryTable(sb, dbAttachment);
-                    }
+                    else if (attachment is FileOperationAttachment fileAttachment)
+                        RenderFileOperation(sb, fileAttachment);
                 }
 
                 if (stepResult?.Message != null)
@@ -213,6 +213,36 @@ public class HtmlReportGenerator
         sb.AppendLine("</div>");
     }
 
+    private static void RenderFileOperation(StringBuilder sb, FileOperationAttachment attachment)
+    {
+        var statusClass = attachment.Passed ? "file-pass" : "file-fail";
+        sb.AppendLine("<div class=\"file-evidence\">");
+        sb.AppendLine($"<div class=\"file-header\">ファイル操作: {Escape(attachment.Name)}</div>");
+
+        sb.AppendLine("<table class=\"file-table\">");
+        sb.AppendLine("<tbody>");
+
+        sb.AppendLine($"<tr><th>操作</th><td>{Escape(attachment.Operation)}</td></tr>");
+        sb.AppendLine($"<tr><th>パス</th><td><code>{Escape(attachment.TargetPath)}</code></td></tr>");
+
+        if (attachment.Operation == "assertFile")
+        {
+            sb.AppendLine($"<tr><th>期待値</th><td>{Escape(attachment.ExpectedValue ?? "")}</td></tr>");
+            sb.AppendLine($"<tr><th>実際値</th><td class=\"{statusClass}\">{Escape(attachment.ActualValue ?? "")}</td></tr>");
+            if (attachment.FileSize != null)
+                sb.AppendLine($"<tr><th>ファイルサイズ</th><td>{attachment.FileSize:N0} bytes</td></tr>");
+        }
+        else if (attachment.Operation == "deleteFile")
+        {
+            var existed = attachment.FileExisted ? "存在 → 削除済み" : "存在しない（操作不要）";
+            sb.AppendLine($"<tr><th>結果</th><td>{Escape(existed)}</td></tr>");
+        }
+
+        sb.AppendLine("</tbody>");
+        sb.AppendLine("</table>");
+        sb.AppendLine("</div>");
+    }
+
     private static string FormatJsonElement(JsonElement element)
     {
         return element.ValueKind switch
@@ -278,6 +308,14 @@ public class HtmlReportGenerator
         .db-table tbody tr:nth-child(even) { background: #fafafa; }
         .db-row-fail { background: #ffebee !important; }
         .db-cell-fail { background: #ffcdd2 !important; font-weight: bold; color: #c62828; }
+        .file-evidence { margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #dee2e6; }
+        .file-header { font-weight: bold; margin-bottom: 6px; color: #2e7d32; }
+        .file-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+        .file-table th { background: #e8f5e9; padding: 6px 10px; border: 1px solid #c8e6c9; text-align: left; width: 140px; }
+        .file-table td { padding: 6px 10px; border: 1px solid #e0e0e0; }
+        .file-table code { background: #e8eaf6; padding: 2px 6px; border-radius: 3px; font-size: 0.95em; }
+        .file-pass { color: #2e7d32; font-weight: bold; }
+        .file-fail { color: #c62828; font-weight: bold; background: #ffebee; }
         """;
 
     private static string GetScript() => """
