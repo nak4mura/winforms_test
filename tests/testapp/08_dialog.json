@@ -12,7 +12,67 @@
   },
   "scenarios": [
     {
-      "name": "ヘルプメニューからバージョン情報ダイアログを開閉",
+      "name": "バージョン情報ダイアログ - コンテンツ検証とOKボタンで閉じる",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "ヘルプ(H)" },
+          "description": "ヘルプメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "バージョン情報(A)" },
+          "description": "バージョン情報メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "バージョン情報",
+          "timeoutMs": 3000,
+          "description": "バージョン情報ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblAppName" },
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "テストアプリケーション"
+          },
+          "description": "アプリ名ラベルが「テストアプリケーション」であることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblVersion" },
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "バージョン 1.0.0"
+          },
+          "description": "バージョンラベルが「バージョン 1.0.0」であることを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnAboutOk" },
+          "description": "OKボタンをクリックしてダイアログを閉じる"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻る"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "テストアプリケーション"
+          },
+          "description": "メイン画面のタイトルを確認"
+        }
+      ]
+    },
+    {
+      "name": "バージョン情報ダイアログ - Enterキーで閉じる",
       "steps": [
         {
           "action": "click",
@@ -38,12 +98,12 @@
             "operator": "contains",
             "value": "テストアプリケーション"
           },
-          "description": "アプリ名ラベルを確認"
+          "description": "ダイアログが表示されていることを確認"
         },
         {
-          "action": "click",
-          "target": { "automationId": "BtnAboutOk" },
-          "description": "OKボタンをクリック"
+          "action": "sendKeys",
+          "keys": "{ENTER}",
+          "description": "EnterキーでAcceptButtonを押下してダイアログを閉じる"
         },
         {
           "action": "switchWindow",
@@ -57,7 +117,160 @@
             "operator": "equals",
             "value": "テストアプリケーション"
           },
-          "description": "メイン画面のタイトルを確認"
+          "description": "Enterキーでダイアログが閉じてメイン画面に戻ったことを確認"
+        }
+      ]
+    },
+    {
+      "name": "ファンクションキー画面のヘルプダイアログ - 表示と閉じ",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{F1}",
+          "description": "F1キーを押下してヘルプダイアログを表示"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ヘルプ",
+          "timeoutMs": 3000,
+          "description": "ヘルプダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてヘルプダイアログを閉じる"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "F1 - ヘルプ"
+          },
+          "description": "ヘルプダイアログ閉じ後に結果ラベルが更新されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "メッセージ画面の成功通知ダイアログ - Enterキーで閉じる",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSuccess" },
+          "description": "成功通知ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "成功",
+          "timeoutMs": 3000,
+          "description": "成功ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{ENTER}",
+          "description": "Enterキーで成功ダイアログを閉じる"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "成功通知を表示しました"
+          },
+          "description": "ダイアログ閉じ後に結果ラベルが更新されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "メッセージ画面の保存確認ダイアログ - Escキーでキャンセル",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnSaveConfirm" },
+          "description": "保存確認ボタンをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "保存確認",
+          "timeoutMs": 3000,
+          "description": "保存確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "{ESC}",
+          "description": "Escキーで保存確認ダイアログをキャンセル"
+        },
+        {
+          "action": "switchWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面に戻る"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "操作がキャンセルされました"
+          },
+          "description": "Escキーでキャンセルされた結果が表示されていることを確認"
         }
       ]
     }

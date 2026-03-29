@@ -12,7 +12,7 @@
   },
   "scenarios": [
     {
-      "name": "半角英数フィールドに英数字を入力",
+      "name": "半角英数フィールド - 英数字の正常入力",
       "steps": [
         {
           "action": "click",
@@ -48,7 +48,53 @@
       ]
     },
     {
-      "name": "数値フィールドに数字を入力",
+      "name": "半角英数フィールド - 記号入力の拒否",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "TxtAlphanumeric" },
+          "description": "半角英数フィールドにフォーカスを設定"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "a1",
+          "target": { "automationId": "TxtAlphanumeric" },
+          "description": "英数字「a1」を送信（受け入れられるべき）"
+        },
+        {
+          "action": "wait",
+          "ms": 200,
+          "description": "入力処理を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtAlphanumeric" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": "a1"
+          },
+          "description": "英数字「a1」が入力されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "数値フィールド - 数字の正常入力",
       "steps": [
         {
           "action": "click",
@@ -84,7 +130,99 @@
       ]
     },
     {
-      "name": "桁数制限フィールドの入力制限",
+      "name": "数値フィールド - 英字入力の拒否",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "TxtNumericOnly" },
+          "description": "数値フィールドにフォーカスを設定"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "abc",
+          "target": { "automationId": "TxtNumericOnly" },
+          "description": "英字「abc」を送信（KeyPressフィルタにより拒否されるべき）"
+        },
+        {
+          "action": "wait",
+          "ms": 200,
+          "description": "入力処理を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtNumericOnly" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": ""
+          },
+          "description": "英字が拒否されてフィールドが空のままであることを確認"
+        }
+      ]
+    },
+    {
+      "name": "数値フィールド - 数字と英字の混在入力で数字のみ受け入れ",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "TxtNumericOnly" },
+          "description": "数値フィールドにフォーカスを設定"
+        },
+        {
+          "action": "sendKeys",
+          "keys": "1a2b3",
+          "target": { "automationId": "TxtNumericOnly" },
+          "description": "「1a2b3」を送信し数字のみ受け入れられることを検証"
+        },
+        {
+          "action": "wait",
+          "ms": 200,
+          "description": "入力処理を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtNumericOnly" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": "123"
+          },
+          "description": "数字の「123」のみが入力されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "桁数制限フィールド - 最大長5文字の入力",
       "steps": [
         {
           "action": "click",
@@ -105,7 +243,7 @@
           "action": "type",
           "target": { "automationId": "TxtMaxLength" },
           "text": "ABCDE",
-          "description": "桁数制限フィールドに5文字を入力"
+          "description": "桁数制限フィールドに最大長ちょうど5文字を入力"
         },
         {
           "action": "assert",
@@ -115,12 +253,12 @@
             "operator": "equals",
             "value": "ABCDE"
           },
-          "description": "5文字が入力されていることを確認"
+          "description": "5文字全てが入力されていることを確認"
         }
       ]
     },
     {
-      "name": "全角フィールドの存在確認",
+      "name": "桁数制限フィールド - 6文字入力で5文字に切り詰め",
       "steps": [
         {
           "action": "click",
@@ -138,19 +276,66 @@
           "description": "入力制御画面が表示されるまで待機"
         },
         {
-          "action": "waitForControl",
+          "action": "sendKeys",
+          "keys": "ABCDEF",
+          "target": { "automationId": "TxtMaxLength" },
+          "description": "6文字「ABCDEF」を送信（MaxLength=5で6文字目が拒否されるべき）"
+        },
+        {
+          "action": "wait",
+          "ms": 200,
+          "description": "入力処理を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtMaxLength" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": "ABCDE"
+          },
+          "description": "最大長5文字までしか入力されていないことを確認"
+        }
+      ]
+    },
+    {
+      "name": "全角フィールド - 全角文字の入力と検証",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "入力制御(I)" },
+          "description": "入力制御メニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "入力制御",
+          "description": "入力制御画面が表示されるまで待機"
+        },
+        {
+          "action": "type",
           "target": { "automationId": "TxtZenkaku" },
-          "description": "全角入力フィールドが存在することを確認"
+          "text": "テスト入力",
+          "description": "全角フィールドに「テスト入力」を入力"
         },
         {
-          "action": "waitForControl",
-          "target": { "automationId": "DtpDate" },
-          "description": "日付入力コントロールが存在することを確認"
+          "action": "assert",
+          "target": { "automationId": "TxtZenkaku" },
+          "expect": {
+            "property": "Value",
+            "operator": "equals",
+            "value": "テスト入力"
+          },
+          "description": "全角文字「テスト入力」が正しく入力されていることを確認"
         }
       ]
     },
     {
-      "name": "日付入力コントロールの存在確認",
+      "name": "日付ピッカー - コントロールの存在と初期値の検証",
       "steps": [
         {
           "action": "click",
@@ -170,17 +355,17 @@
         {
           "action": "waitForControl",
           "target": { "automationId": "DtpDate" },
-          "description": "DateTimePickerコントロールが存在することを確認"
+          "description": "日付ピッカーコントロールが存在することを確認"
         },
         {
-          "action": "click",
-          "target": { "automationId": "BtnInputBack" },
-          "description": "メインへ戻るボタンをクリック"
-        },
-        {
-          "action": "waitForWindow",
-          "windowTitle": "テストアプリケーション",
-          "description": "メイン画面に戻ることを確認"
+          "action": "assert",
+          "target": { "automationId": "DtpDate" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "2026"
+          },
+          "description": "日付ピッカーの値に現在の年が含まれていることを確認"
         }
       ]
     }

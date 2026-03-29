@@ -20,200 +20,32 @@
   },
   "scenarios": [
     {
-      "name": "DBセットアップ - テストデータ初期化",
+      "name": "メインウィンドウ表示と主要コントロールの確認",
       "steps": [
         {
           "action": "executedb",
-          "description": "従業員テーブルの全データを削除（FK制約のため先に削除）",
+          "description": "テストデータ初期化: 従業員・部署を削除",
           "query": {
             "connectionName": "main",
-            "sql": "DELETE FROM Employees"
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
           }
         },
         {
           "action": "executedb",
-          "description": "部署テーブルの全データを削除",
+          "description": "部署シードデータ投入（5件）",
           "query": {
             "connectionName": "main",
-            "sql": "DELETE FROM Departments"
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
           }
         },
         {
           "action": "executedb",
-          "description": "部署テーブルのIDENTITYをリセット",
+          "description": "従業員シードデータ投入（10件）",
           "query": {
             "connectionName": "main",
-            "sql": "DBCC CHECKIDENT ('Departments', RESEED, 0)"
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
           }
         },
-        {
-          "action": "executedb",
-          "description": "従業員テーブルのIDENTITYをリセット",
-          "query": {
-            "connectionName": "main",
-            "sql": "DBCC CHECKIDENT ('Employees', RESEED, 0)"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "部署シードデータを投入（SALES:営業部）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'); SET IDENTITY_INSERT Departments OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "部署シードデータを投入（DEV:開発部）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (2, 'DEV', N'開発部'); SET IDENTITY_INSERT Departments OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "部署シードデータを投入（HR:人事部）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (3, 'HR', N'人事部'); SET IDENTITY_INSERT Departments OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "部署シードデータを投入（ACC:経理部）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (4, 'ACC', N'経理部'); SET IDENTITY_INSERT Departments OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "部署シードデータを投入（GA:総務部）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
-          }
-        },
-        {
-          "action": "assertdb",
-          "description": "部署シードデータが5件登録されていることを確認",
-          "query": {
-            "connectionName": "main",
-            "sql": "SELECT DepartmentCode, DepartmentName FROM Departments ORDER BY DepartmentId"
-          },
-          "expectedRows": [
-            ["SALES", "営業部"],
-            ["DEV", "開発部"],
-            ["HR", "人事部"],
-            ["ACC", "経理部"],
-            ["GA", "総務部"]
-          ]
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP001:田中太郎）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP002:鈴木花子）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP003:佐藤一郎）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP004:高橋美咲）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP005:伊藤健太）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP006:渡辺さくら）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP007:山本大輔）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP008:中村愛）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP009:小林翔 ※退職者）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "従業員シードデータを投入（EMP010:加藤陽子）",
-          "query": {
-            "connectionName": "main",
-            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
-          }
-        },
-        {
-          "action": "assertdb",
-          "description": "従業員シードデータが10件登録されていることを確認",
-          "query": {
-            "connectionName": "main",
-            "sql": "SELECT EmployeeCode, LastName, FirstName FROM Employees ORDER BY EmployeeId"
-          },
-          "expectedRows": [
-            ["EMP001", "田中", "太郎"],
-            ["EMP002", "鈴木", "花子"],
-            ["EMP003", "佐藤", "一郎"],
-            ["EMP004", "高橋", "美咲"],
-            ["EMP005", "伊藤", "健太"],
-            ["EMP006", "渡辺", "さくら"],
-            ["EMP007", "山本", "大輔"],
-            ["EMP008", "中村", "愛"],
-            ["EMP009", "小林", "翔"],
-            ["EMP010", "加藤", "陽子"]
-          ]
-        }
-      ]
-    },
-    {
-      "name": "メインウィンドウ表示確認",
-      "steps": [
         {
           "action": "assertwindow",
           "expect": {
@@ -242,12 +74,7 @@
           "action": "waitforcontrol",
           "target": { "name": "削除(D)" },
           "description": "削除ボタンが表示されていることを確認"
-        }
-      ]
-    },
-    {
-      "name": "初期データ表示確認",
-      "steps": [
+        },
         {
           "action": "assert",
           "target": { "controlType": "datagrid" },
@@ -271,8 +98,42 @@
       ]
     },
     {
-      "name": "従業員検索テスト - キーワード検索",
+      "name": "従業員検索 - キーワード検索で結果を絞り込み",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリアして全件表示"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
         {
           "action": "type",
           "target": { "controlType": "edit", "index": 0 },
@@ -302,8 +163,42 @@
       ]
     },
     {
-      "name": "従業員検索テスト - 検索クリア",
+      "name": "従業員検索 - 検索クリアで全件表示に復帰",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリアして全件表示"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
         {
           "action": "type",
           "target": { "controlType": "edit", "index": 0 },
@@ -343,8 +238,42 @@
       ]
     },
     {
-      "name": "従業員検索テスト - 状態フィルタ",
+      "name": "従業員検索 - 退職者フィルタで絞り込み",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリアして全件表示"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
         {
           "action": "expandcollapse",
           "target": { "controlType": "combobox", "index": 1 },
@@ -391,7 +320,324 @@
       ]
     },
     {
-      "name": "バージョン情報ダイアログ表示テスト",
+      "name": "従業員検索 - 該当なしの検索で結果が空",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 0 },
+          "text": "ZZZNONEXISTENT",
+          "description": "存在しないキーワード「ZZZNONEXISTENT」で検索"
+        },
+        {
+          "action": "click",
+          "target": { "name": "検索" },
+          "description": "検索ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "検索結果の反映を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBにも該当データが0件であることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Employees WHERE EmployeeCode LIKE '%ZZZNONEXISTENT%' OR LastName LIKE '%ZZZNONEXISTENT%' OR FirstName LIKE '%ZZZNONEXISTENT%' OR Email LIKE '%ZZZNONEXISTENT%'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "従業員検索 - 社員番号で検索",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 0 },
+          "text": "EMP002",
+          "description": "社員番号「EMP002」で検索"
+        },
+        {
+          "action": "click",
+          "target": { "name": "検索" },
+          "description": "検索ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "検索結果の反映を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "鈴木"
+          },
+          "description": "EMP002「鈴木」が検索結果に表示されていることを確認"
+        }
+      ]
+    },
+    {
+      "name": "従業員検索 - 在籍フィルタで退職者を除外",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 1 },
+          "value": "expand",
+          "description": "状態コンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "controlType": "combobox", "index": 1 },
+          "value": "在籍",
+          "description": "「在籍」を選択"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 1 },
+          "value": "collapse",
+          "description": "状態コンボボックスを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "検索" },
+          "description": "検索ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "検索結果の反映を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "田中"
+          },
+          "description": "在籍者「田中」が検索結果に表示されていることを確認"
+        },
+        {
+          "action": "assertdb",
+          "description": "DB上の在籍者件数と一致することを確認（9件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Employees WHERE IsActive = 1"
+          },
+          "expectedRows": [
+            [9]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "従業員検索 - 部署フィルタで開発部のみ表示",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "expand",
+          "description": "部署コンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "開発部",
+          "description": "「開発部」を選択"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "collapse",
+          "description": "部署コンボボックスを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "検索" },
+          "description": "検索ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "検索結果の反映を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "鈴木"
+          },
+          "description": "開発部の「鈴木」が検索結果に表示されていることを確認"
+        },
+        {
+          "action": "assertdb",
+          "description": "DB上の開発部所属者件数と一致することを確認（3件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Employees WHERE DepartmentId = 2"
+          },
+          "expectedRows": [
+            [3]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "バージョン情報ダイアログの表示と閉じ",
       "steps": [
         {
           "action": "click",
@@ -422,8 +668,24 @@
       ]
     },
     {
-      "name": "部署管理画面遷移テスト",
+      "name": "部署管理画面の遷移とシードデータ表示確認",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
         {
           "action": "click",
           "target": { "name": "マスタ(M)" },
@@ -471,8 +733,24 @@
       ]
     },
     {
-      "name": "部署追加テスト",
+      "name": "部署追加 - 新規部署の登録とDB確認",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
         {
           "action": "click",
           "target": { "name": "マスタ(M)" },
@@ -544,8 +822,24 @@
       ]
     },
     {
-      "name": "部署バリデーションテスト - コード未入力",
+      "name": "部署追加バリデーション - コード未入力でエラー",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
         {
           "action": "click",
           "target": { "name": "マスタ(M)" },
@@ -607,17 +901,339 @@
       ]
     },
     {
-      "name": "従業員追加テスト",
+      "name": "部署更新 - 部署名変更とDB検証",
       "steps": [
         {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
           "action": "click",
-          "target": { "name": "クリア" },
-          "description": "検索条件をクリアして全件表示に戻す"
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "営業部" },
+          "description": "「営業部」の行を選択"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "clear",
+          "target": { "controlType": "edit", "index": 1 },
+          "description": "部署名フィールドをクリア"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 1 },
+          "text": "営業本部",
+          "description": "部署名を「営業本部」に変更"
+        },
+        {
+          "action": "click",
+          "target": { "name": "更新" },
+          "description": "更新ボタンをクリック"
         },
         {
           "action": "wait",
           "ms": 500,
-          "description": "クリア結果の反映を待機"
+          "description": "更新処理の完了を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "営業本部"
+          },
+          "description": "部署一覧に「営業本部」が表示されていることを確認"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBで部署名が更新されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT DepartmentCode, DepartmentName FROM Departments WHERE DepartmentCode = 'SALES'"
+          },
+          "expectedRows": [
+            ["SALES", "営業本部"]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "部署削除 - 従業員なし部署の削除とDB検証",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除し、削除用テスト部署を追加",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件+削除用1件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'), (6, 'DELTEST', N'削除テスト部署'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除テスト部署" },
+          "description": "「削除テスト部署」の行を選択"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除" },
+          "description": "削除ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "削除確認",
+          "timeoutMs": 3000,
+          "description": "削除確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "はい(Y)" },
+          "description": "「はい」をクリックして削除を実行"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面に戻る"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "削除処理の完了を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBから削除テスト部署が削除されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Departments WHERE DepartmentCode = 'DELTEST'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        },
+        {
+          "action": "assertdb",
+          "description": "残りの部署が5件であることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Departments"
+          },
+          "expectedRows": [
+            [5]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "部署削除 - 従業員所属部署の削除は拒否される",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "営業部に従業員を1名投入",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "営業部" },
+          "description": "従業員が所属する「営業部」を選択"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除" },
+          "description": "削除ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "削除不可",
+          "timeoutMs": 3000,
+          "description": "削除不可ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてダイアログを閉じる"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面に戻る"
+        },
+        {
+          "action": "assertdb",
+          "description": "営業部がDBに残っていることを確認（削除されていない）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Departments WHERE DepartmentCode = 'SALES'"
+          },
+          "expectedRows": [
+            [1]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "従業員追加 - 新規従業員の登録とDB確認",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリアして全件表示"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
         },
         {
           "action": "click",
@@ -707,7 +1323,7 @@
       ]
     },
     {
-      "name": "従業員追加バリデーションテスト - 社員番号未入力",
+      "name": "従業員追加バリデーション - 社員番号未入力でエラー",
       "steps": [
         {
           "action": "click",
@@ -753,8 +1369,237 @@
       ]
     },
     {
-      "name": "従業員削除テスト - 未選択時エラー",
+      "name": "従業員編集 - 部門変更とDB検証",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員を1名投入（営業部所属）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "EMP001" },
+          "description": "従業員「EMP001」の行を選択"
+        },
+        {
+          "action": "click",
+          "target": { "name": "編集(E)" },
+          "description": "編集ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "従業員編集",
+          "description": "従業員編集画面が表示されるまで待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "expand",
+          "description": "部署コンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "開発部",
+          "description": "部署を「開発部」に変更"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "collapse",
+          "description": "部署コンボボックスを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックして変更を保存"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBで部門が開発部（DepartmentId=2）に更新されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT EmployeeCode, DepartmentId FROM Employees WHERE EmployeeCode = 'EMP001'"
+          },
+          "expectedRows": [
+            ["EMP001", 2]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "従業員削除 - 確認ダイアログで削除実行とDB検証",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "削除対象の従業員を投入",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'DEL001', N'削除', N'対象', 1, 'del@example.com', '03-0000-0000', '2020-04-01', 300000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "削除前にDBに従業員が存在することを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Employees WHERE EmployeeCode = 'DEL001'"
+          },
+          "expectedRows": [
+            [1]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "DEL001" },
+          "description": "従業員「DEL001」の行を選択"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除(D)" },
+          "description": "削除ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "削除確認",
+          "timeoutMs": 3000,
+          "description": "削除確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "はい(Y)" },
+          "description": "「はい」をクリックして削除を実行"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "削除処理の完了を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "削除後にDBから従業員が削除されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Employees WHERE EmployeeCode = 'DEL001'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "従業員削除 - 未選択状態でエラーダイアログ表示",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリアして全件表示"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
         {
           "action": "type",
           "target": { "controlType": "edit", "index": 0 },
@@ -791,22 +1636,46 @@
           "action": "switchwindow",
           "windowTitle": "従業員管理システム",
           "description": "メインウィンドウに戻る"
-        },
-        {
-          "action": "click",
-          "target": { "name": "クリア" },
-          "description": "検索条件をクリアして全件表示に戻す"
-        },
-        {
-          "action": "wait",
-          "ms": 500,
-          "description": "クリア結果の反映を待機"
         }
       ]
     },
     {
-      "name": "従業員編集テスト - 未選択時エラー",
+      "name": "従業員編集 - 未選択状態でエラーダイアログ表示",
       "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員シードデータ投入（10件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1), (2, 'EMP002', N'鈴木', N'花子', 2, 'suzuki@example.com', '03-2345-6789', '2019-04-01', 420000, 1), (3, 'EMP003', N'佐藤', N'一郎', 2, 'sato@example.com', '03-3456-7890', '2021-10-01', 380000, 1), (4, 'EMP004', N'高橋', N'美咲', 3, 'takahashi@example.com', '03-4567-8901', '2018-04-01', 450000, 1), (5, 'EMP005', N'伊藤', N'健太', 4, 'ito@example.com', '03-5678-9012', '2022-04-01', 320000, 1), (6, 'EMP006', N'渡辺', N'さくら', 1, 'watanabe@example.com', '03-6789-0123', '2023-04-01', 300000, 1), (7, 'EMP007', N'山本', N'大輔', 5, 'yamamoto@example.com', '03-7890-1234', '2017-04-01', 480000, 1), (8, 'EMP008', N'中村', N'愛', 2, 'nakamura@example.com', '03-8901-2345', '2021-04-01', 390000, 1), (9, 'EMP009', N'小林', N'翔', 1, 'kobayashi@example.com', '03-9012-3456', '2020-10-01', 360000, 0), (10, 'EMP010', N'加藤', N'陽子', 3, 'kato@example.com', '03-0123-4567', '2024-04-01', 280000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリアして全件表示"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
         {
           "action": "type",
           "target": { "controlType": "edit", "index": 0 },
@@ -843,59 +1712,6 @@
           "action": "switchwindow",
           "windowTitle": "従業員管理システム",
           "description": "メインウィンドウに戻る"
-        },
-        {
-          "action": "click",
-          "target": { "name": "クリア" },
-          "description": "検索条件をクリアして全件表示に戻す"
-        },
-        {
-          "action": "wait",
-          "ms": 500,
-          "description": "クリア結果の反映を待機"
-        }
-      ]
-    },
-    {
-      "name": "DBクリーンアップ - テストデータ削除と初期状態復元",
-      "steps": [
-        {
-          "action": "executedb",
-          "description": "テスト中に追加された従業員データを削除（TEST%）",
-          "query": {
-            "connectionName": "main",
-            "sql": "DELETE FROM Employees WHERE EmployeeCode LIKE 'TEST%'"
-          }
-        },
-        {
-          "action": "executedb",
-          "description": "テスト中に追加された部署データを削除（TESTDPT）",
-          "query": {
-            "connectionName": "main",
-            "sql": "DELETE FROM Departments WHERE DepartmentCode = 'TESTDPT'"
-          }
-        },
-        {
-          "action": "assertdb",
-          "description": "テストで追加したデータがクリーンアップされていることを確認",
-          "query": {
-            "connectionName": "main",
-            "sql": "SELECT COUNT(*) AS Cnt FROM Employees WHERE EmployeeCode LIKE 'TEST%'"
-          },
-          "expectedRows": [
-            [0]
-          ]
-        },
-        {
-          "action": "assertdb",
-          "description": "シードデータ（部署5件・従業員10件）が維持されていることを確認",
-          "query": {
-            "connectionName": "main",
-            "sql": "SELECT (SELECT COUNT(*) FROM Departments) AS DeptCount, (SELECT COUNT(*) FROM Employees) AS EmpCount"
-          },
-          "expectedRows": [
-            [5, 10]
-          ]
         }
       ]
     }

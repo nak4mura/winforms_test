@@ -12,7 +12,7 @@
   },
   "scenarios": [
     {
-      "name": "CRUD画面への遷移と戻り",
+      "name": "CRUD画面への遷移と画面コンテンツ確認",
       "steps": [
         {
           "action": "click",
@@ -39,6 +39,36 @@
           "description": "CRUD画面のタイトルを確認"
         },
         {
+          "action": "assert",
+          "target": { "automationId": "BtnAdd" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "追加"
+          },
+          "description": "追加ボタンが存在することを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "BtnUpdate" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "更新"
+          },
+          "description": "更新ボタンが存在することを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "BtnDelete" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "削除"
+          },
+          "description": "削除ボタンが存在することを確認"
+        },
+        {
           "action": "click",
           "target": { "automationId": "BtnCrudBack" },
           "description": "メインへ戻るボタンをクリック"
@@ -51,7 +81,7 @@
       ]
     },
     {
-      "name": "メッセージ画面への遷移と戻り",
+      "name": "メッセージ画面への遷移と画面コンテンツ確認",
       "steps": [
         {
           "action": "click",
@@ -78,6 +108,36 @@
           "description": "メッセージ画面のタイトルを確認"
         },
         {
+          "action": "assert",
+          "target": { "automationId": "BtnDeleteConfirm" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "削除確認"
+          },
+          "description": "削除確認ボタンが存在することを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "BtnSaveConfirm" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "保存確認"
+          },
+          "description": "保存確認ボタンが存在することを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblMessageResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "未操作"
+          },
+          "description": "結果ラベルが初期状態であることを確認"
+        },
+        {
           "action": "click",
           "target": { "automationId": "BtnMessageBack" },
           "description": "メインへ戻るボタンをクリック"
@@ -90,7 +150,7 @@
       ]
     },
     {
-      "name": "ファンクションキー画面への遷移と戻り",
+      "name": "ファンクションキー画面への遷移と画面コンテンツ確認",
       "steps": [
         {
           "action": "click",
@@ -117,6 +177,26 @@
           "description": "ファンクションキー画面のタイトルを確認"
         },
         {
+          "action": "assert",
+          "target": { "automationId": "LblKeyGuide" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "F1"
+          },
+          "description": "キーガイドラベルが表示されていることを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "LblFKeyResult" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "未操作"
+          },
+          "description": "結果ラベルが初期状態であることを確認"
+        },
+        {
           "action": "click",
           "target": { "automationId": "BtnFKeyBack" },
           "description": "メインへ戻るボタンをクリック"
@@ -129,7 +209,7 @@
       ]
     },
     {
-      "name": "入力制御画面への遷移と戻り",
+      "name": "入力制御画面への遷移と画面コンテンツ確認",
       "steps": [
         {
           "action": "click",
@@ -156,6 +236,26 @@
           "description": "入力制御画面のタイトルを確認"
         },
         {
+          "action": "assert",
+          "target": { "automationId": "TxtAlphanumeric" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "半角英数"
+          },
+          "description": "半角英数テキストボックスが存在することを確認"
+        },
+        {
+          "action": "assert",
+          "target": { "automationId": "TxtNumericOnly" },
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "数値"
+          },
+          "description": "数値のみテキストボックスが存在することを確認"
+        },
+        {
           "action": "click",
           "target": { "automationId": "BtnInputBack" },
           "description": "メインへ戻るボタンをクリック"
@@ -164,6 +264,122 @@
           "action": "waitForWindow",
           "windowTitle": "テストアプリケーション",
           "description": "メイン画面に戻るまで待機"
+        }
+      ]
+    },
+    {
+      "name": "画面の連続遷移テスト（CRUD→メッセージ→ファンクションキー→メイン）",
+      "steps": [
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "データCRUD(C)" },
+          "description": "データCRUDメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "データCRUD",
+          "description": "CRUD画面が表示されるまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "データCRUD"
+          },
+          "description": "CRUD画面であることを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnCrudBack" },
+          "description": "メインへ戻る"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻るまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "メッセージ(M)" },
+          "description": "メッセージメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "メッセージ",
+          "description": "メッセージ画面が表示されるまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "メッセージ"
+          },
+          "description": "メッセージ画面であることを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnMessageBack" },
+          "description": "メインへ戻る"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻るまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "画面(S)" },
+          "description": "画面メニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "ファンクションキー(F)" },
+          "description": "ファンクションキーメニューをクリック"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "ファンクションキー",
+          "description": "ファンクションキー画面が表示されるまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "contains",
+            "value": "ファンクションキー"
+          },
+          "description": "ファンクションキー画面であることを確認"
+        },
+        {
+          "action": "click",
+          "target": { "automationId": "BtnFKeyBack" },
+          "description": "メインへ戻る"
+        },
+        {
+          "action": "waitForWindow",
+          "windowTitle": "テストアプリケーション",
+          "description": "メイン画面に戻るまで待機"
+        },
+        {
+          "action": "assertWindow",
+          "expect": {
+            "property": "Name",
+            "operator": "equals",
+            "value": "テストアプリケーション"
+          },
+          "description": "最終的にメイン画面に戻っていることを確認"
         }
       ]
     }
