@@ -59,13 +59,18 @@
         },
         {
           "action": "sendKeys",
-          "keys": "%TEMP%\\e2e_test_output.txt",
-          "description": "ファイル名テキストボックスにパスを入力"
+          "keys": "e2e_test_output.txt",
+          "description": "ファイル名テキストボックスにファイル名を入力"
         },
         {
           "action": "sendKeys",
           "keys": "{ENTER}",
           "description": "Enterキーで保存を実行"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "ダイアログが閉じるまで待機"
         },
         {
           "action": "switchWindow",

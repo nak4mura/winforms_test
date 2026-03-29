@@ -64,7 +64,8 @@ public class FileOutputForm : Form
         {
             Filter = "テキストファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*",
             DefaultExt = "txt",
-            Title = "名前を付けて保存"
+            Title = "名前を付けて保存",
+            InitialDirectory = Path.GetTempPath()
         };
 
         if (dialog.ShowDialog(this) == DialogResult.OK)
