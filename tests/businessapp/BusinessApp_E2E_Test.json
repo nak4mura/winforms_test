@@ -901,6 +901,304 @@
       ]
     },
     {
+      "name": "部署更新 - 部署名変更とDB検証",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "営業部" },
+          "description": "「営業部」の行を選択"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "clear",
+          "target": { "controlType": "edit", "index": 1 },
+          "description": "部署名フィールドをクリア"
+        },
+        {
+          "action": "type",
+          "target": { "controlType": "edit", "index": 1 },
+          "text": "営業本部",
+          "description": "部署名を「営業本部」に変更"
+        },
+        {
+          "action": "click",
+          "target": { "name": "更新" },
+          "description": "更新ボタンをクリック"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "更新処理の完了を待機"
+        },
+        {
+          "action": "assert",
+          "target": { "controlType": "datagrid" },
+          "expect": {
+            "property": "Value",
+            "operator": "contains",
+            "value": "営業本部"
+          },
+          "description": "部署一覧に「営業本部」が表示されていることを確認"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBで部署名が更新されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT DepartmentCode, DepartmentName FROM Departments WHERE DepartmentCode = 'SALES'"
+          },
+          "expectedRows": [
+            ["SALES", "営業本部"]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "部署削除 - 従業員なし部署の削除とDB検証",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除し、削除用テスト部署を追加",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件+削除用1件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'), (6, 'DELTEST', N'削除テスト部署'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除テスト部署" },
+          "description": "「削除テスト部署」の行を選択"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除" },
+          "description": "削除ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "削除確認",
+          "timeoutMs": 3000,
+          "description": "削除確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "はい(Y)" },
+          "description": "「はい」をクリックして削除を実行"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面に戻る"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "削除処理の完了を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBから削除テスト部署が削除されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Departments WHERE DepartmentCode = 'DELTEST'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        },
+        {
+          "action": "assertdb",
+          "description": "残りの部署が5件であることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Departments"
+          },
+          "expectedRows": [
+            [5]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
+      "name": "部署削除 - 従業員所属部署の削除は拒否される",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "営業部に従業員を1名投入",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "マスタ(M)" },
+          "description": "マスタメニューをクリック"
+        },
+        {
+          "action": "click",
+          "target": { "name": "部署管理(D)" },
+          "description": "部署管理メニューをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面が表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "営業部" },
+          "description": "従業員が所属する「営業部」を選択"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除" },
+          "description": "削除ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "削除不可",
+          "timeoutMs": 3000,
+          "description": "削除不可ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックしてダイアログを閉じる"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "部署マスタ管理",
+          "description": "部署マスタ管理画面に戻る"
+        },
+        {
+          "action": "assertdb",
+          "description": "営業部がDBに残っていることを確認（削除されていない）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Departments WHERE DepartmentCode = 'SALES'"
+          },
+          "expectedRows": [
+            [1]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "閉じる" },
+          "description": "閉じるボタンをクリック"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        }
+      ]
+    },
+    {
       "name": "従業員追加 - 新規従業員の登録とDB確認",
       "steps": [
         {
