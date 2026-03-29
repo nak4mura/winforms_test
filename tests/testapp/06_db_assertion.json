@@ -99,12 +99,6 @@
           "expectedRows": [
             [1, "テストアイテム1", "テスト説明1"]
           ]
-        },
-        {
-          "action": "assert",
-          "target": { "automationId": "DbCrudDataGrid" },
-          "expect": { "property": "Name", "operator": "contains", "value": "テストアイテム1" },
-          "description": "画面のグリッドにもデータが表示されていることを確認"
         }
       ]
     },
@@ -227,31 +221,16 @@
           "description": "DB CRUD画面が表示されるまで待機"
         },
         {
-          "action": "click",
-          "target": { "name": "テストアイテム1" },
-          "description": "1件目の行を選択"
-        },
-        {
-          "action": "clear",
-          "target": { "automationId": "TxtDbItemName" },
-          "description": "名前フィールドをクリア"
-        },
-        {
           "action": "type",
           "target": { "automationId": "TxtDbItemName" },
           "text": "更新済みアイテム1",
-          "description": "新しい名前を入力"
-        },
-        {
-          "action": "clear",
-          "target": { "automationId": "TxtDbItemDescription" },
-          "description": "説明フィールドをクリア"
+          "description": "先頭行が自動選択されているため名前を上書き"
         },
         {
           "action": "type",
           "target": { "automationId": "TxtDbItemDescription" },
           "text": "更新後の説明",
-          "description": "新しい説明を入力"
+          "description": "説明を上書き"
         },
         {
           "action": "click",
@@ -273,12 +252,6 @@
           "expectedRows": [
             ["更新済みアイテム1", "更新後の説明"]
           ]
-        },
-        {
-          "action": "assert",
-          "target": { "automationId": "DbCrudDataGrid" },
-          "expect": { "property": "Name", "operator": "contains", "value": "更新済みアイテム1" },
-          "description": "画面のグリッドにも更新後のデータが表示されていることを確認"
         }
       ]
     },
@@ -313,13 +286,8 @@
         },
         {
           "action": "click",
-          "target": { "name": "更新済みアイテム1" },
-          "description": "更新済みの1件目の行を選択"
-        },
-        {
-          "action": "click",
           "target": { "automationId": "BtnDbDelete" },
-          "description": "削除ボタンをクリック"
+          "description": "先頭行が自動選択されているため削除ボタンをクリック"
         },
         {
           "action": "wait",

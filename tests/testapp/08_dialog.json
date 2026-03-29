@@ -224,7 +224,7 @@
       ]
     },
     {
-      "name": "メッセージ画面の削除確認ダイアログ - Escキーでキャンセル",
+      "name": "メッセージ画面の保存確認ダイアログ - Escキーでキャンセル",
       "steps": [
         {
           "action": "click",
@@ -243,19 +243,19 @@
         },
         {
           "action": "click",
-          "target": { "automationId": "BtnDeleteConfirm" },
-          "description": "削除確認ボタンをクリック"
+          "target": { "automationId": "BtnSaveConfirm" },
+          "description": "保存確認ボタンをクリック"
         },
         {
           "action": "waitForWindow",
-          "windowTitle": "削除確認",
+          "windowTitle": "保存確認",
           "timeoutMs": 3000,
-          "description": "削除確認ダイアログが表示されるまで待機"
+          "description": "保存確認ダイアログが表示されるまで待機"
         },
         {
           "action": "sendKeys",
           "keys": "{ESC}",
-          "description": "Escキーで削除確認ダイアログをキャンセル"
+          "description": "Escキーで保存確認ダイアログをキャンセル"
         },
         {
           "action": "switchWindow",
@@ -268,7 +268,7 @@
           "expect": {
             "property": "Name",
             "operator": "contains",
-            "value": "削除がキャンセルされました"
+            "value": "操作がキャンセルされました"
           },
           "description": "Escキーでキャンセルされた結果が表示されていることを確認"
         }

@@ -276,11 +276,6 @@
           "description": "入力制御画面が表示されるまで待機"
         },
         {
-          "action": "click",
-          "target": { "automationId": "TxtMaxLength" },
-          "description": "桁数制限フィールドにフォーカスを設定"
-        },
-        {
           "action": "sendKeys",
           "keys": "ABCDEF",
           "target": { "automationId": "TxtMaxLength" },

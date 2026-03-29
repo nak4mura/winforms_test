@@ -240,8 +240,8 @@
           "target": { "automationId": "TxtAlphanumeric" },
           "expect": {
             "property": "Name",
-            "operator": "equals",
-            "value": ""
+            "operator": "contains",
+            "value": "半角英数"
           },
           "description": "半角英数テキストボックスが存在することを確認"
         },
@@ -250,8 +250,8 @@
           "target": { "automationId": "TxtNumericOnly" },
           "expect": {
             "property": "Name",
-            "operator": "equals",
-            "value": ""
+            "operator": "contains",
+            "value": "数値"
           },
           "description": "数値のみテキストボックスが存在することを確認"
         },

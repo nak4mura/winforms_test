@@ -258,26 +258,16 @@
           "description": "更新前のデータがグリッドに表示されていることを確認"
         },
         {
-          "action": "clear",
-          "target": { "automationId": "TxtItemName" },
-          "description": "名前入力欄をクリア"
-        },
-        {
           "action": "type",
           "target": { "automationId": "TxtItemName" },
           "text": "更新後アイテム",
-          "description": "名前を「更新後アイテム」に変更"
-        },
-        {
-          "action": "clear",
-          "target": { "automationId": "TxtItemDescription" },
-          "description": "説明入力欄をクリア"
+          "description": "名前を「更新後アイテム」に上書き"
         },
         {
           "action": "type",
           "target": { "automationId": "TxtItemDescription" },
           "text": "更新後の説明",
-          "description": "説明を「更新後の説明」に変更"
+          "description": "説明を「更新後の説明」に上書き"
         },
         {
           "action": "click",

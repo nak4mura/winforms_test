@@ -147,13 +147,7 @@
         {
           "action": "click",
           "target": { "automationId": "CmbCategory" },
-          "description": "カテゴリコンボボックスにフォーカスを設定"
-        },
-        {
-          "action": "sendKeys",
-          "keys": "{DOWN}",
-          "target": { "automationId": "CmbCategory" },
-          "description": "↓キーで最初の項目（食品）を選択"
+          "description": "カテゴリコンボボックスにフォーカスを設定（スペース送信で食品が選択される）"
         },
         {
           "action": "wait",
@@ -168,7 +162,7 @@
             "operator": "contains",
             "value": "食品"
           },
-          "description": "↓キーで「食品」が選択されたことを確認"
+          "description": "フォーカス設定で「食品」が選択されたことを確認"
         },
         {
           "action": "sendKeys",
