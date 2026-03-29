@@ -1369,6 +1369,201 @@
       ]
     },
     {
+      "name": "従業員編集 - 部門変更とDB検証",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入（5件）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'), (2, 'DEV', N'開発部'), (3, 'HR', N'人事部'), (4, 'ACC', N'経理部'), (5, 'GA', N'総務部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "従業員を1名投入（営業部所属）",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'EMP001', N'田中', N'太郎', 1, 'tanaka@example.com', '03-1234-5678', '2020-04-01', 350000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "EMP001" },
+          "description": "従業員「EMP001」の行を選択"
+        },
+        {
+          "action": "click",
+          "target": { "name": "編集(E)" },
+          "description": "編集ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "従業員編集",
+          "description": "従業員編集画面が表示されるまで待機"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "expand",
+          "description": "部署コンボボックスを展開"
+        },
+        {
+          "action": "select",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "開発部",
+          "description": "部署を「開発部」に変更"
+        },
+        {
+          "action": "expandcollapse",
+          "target": { "controlType": "combobox", "index": 0 },
+          "value": "collapse",
+          "description": "部署コンボボックスを閉じる"
+        },
+        {
+          "action": "wait",
+          "ms": 300,
+          "description": "選択反映を待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "OK" },
+          "description": "OKボタンをクリックして変更を保存"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "DBで部門が開発部（DepartmentId=2）に更新されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT EmployeeCode, DepartmentId FROM Employees WHERE EmployeeCode = 'EMP001'"
+          },
+          "expectedRows": [
+            ["EMP001", 2]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "従業員削除 - 確認ダイアログで削除実行とDB検証",
+      "steps": [
+        {
+          "action": "executedb",
+          "description": "テストデータ初期化: 従業員・部署を削除",
+          "query": {
+            "connectionName": "main",
+            "sql": "DELETE FROM Employees; DELETE FROM Departments; DBCC CHECKIDENT ('Departments', RESEED, 0); DBCC CHECKIDENT ('Employees', RESEED, 0);"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "部署シードデータ投入",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Departments ON; INSERT INTO Departments (DepartmentId, DepartmentCode, DepartmentName) VALUES (1, 'SALES', N'営業部'); SET IDENTITY_INSERT Departments OFF;"
+          }
+        },
+        {
+          "action": "executedb",
+          "description": "削除対象の従業員を投入",
+          "query": {
+            "connectionName": "main",
+            "sql": "SET IDENTITY_INSERT Employees ON; INSERT INTO Employees (EmployeeId, EmployeeCode, LastName, FirstName, DepartmentId, Email, Phone, HireDate, Salary, IsActive) VALUES (1, 'DEL001', N'削除', N'対象', 1, 'del@example.com', '03-0000-0000', '2020-04-01', 300000, 1); SET IDENTITY_INSERT Employees OFF;"
+          }
+        },
+        {
+          "action": "click",
+          "target": { "name": "クリア" },
+          "description": "検索条件をクリア"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "データ反映を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "削除前にDBに従業員が存在することを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Employees WHERE EmployeeCode = 'DEL001'"
+          },
+          "expectedRows": [
+            [1]
+          ]
+        },
+        {
+          "action": "click",
+          "target": { "name": "DEL001" },
+          "description": "従業員「DEL001」の行を選択"
+        },
+        {
+          "action": "click",
+          "target": { "name": "削除(D)" },
+          "description": "削除ボタンをクリック"
+        },
+        {
+          "action": "waitforwindow",
+          "windowTitle": "削除確認",
+          "timeoutMs": 3000,
+          "description": "削除確認ダイアログが表示されるまで待機"
+        },
+        {
+          "action": "click",
+          "target": { "name": "はい(Y)" },
+          "description": "「はい」をクリックして削除を実行"
+        },
+        {
+          "action": "switchwindow",
+          "windowTitle": "従業員管理システム",
+          "description": "メインウィンドウに戻る"
+        },
+        {
+          "action": "wait",
+          "ms": 500,
+          "description": "削除処理の完了を待機"
+        },
+        {
+          "action": "assertdb",
+          "description": "削除後にDBから従業員が削除されていることを確認",
+          "query": {
+            "connectionName": "main",
+            "sql": "SELECT COUNT(*) AS cnt FROM Employees WHERE EmployeeCode = 'DEL001'"
+          },
+          "expectedRows": [
+            [0]
+          ]
+        }
+      ]
+    },
+    {
       "name": "従業員削除 - 未選択状態でエラーダイアログ表示",
       "steps": [
         {
